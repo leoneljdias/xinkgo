@@ -1,5 +1,5 @@
 ![](logo.png)
-> Everything have a place and a purpose
+> Everything has a place and a purpose
 
 ## Build Setup
 
