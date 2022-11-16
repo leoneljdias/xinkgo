@@ -9,7 +9,7 @@
         </span>
       </v-layout>
     </div>
-    <span class="text--secondary">Everything have a place and a purpose</span>
+    <span class="text--secondary">Everything has a place and a purpose</span>
     <div class="mt-10">
       <v-btn class="mb-3" width="100%" outlined @click="google">
         <v-icon left>

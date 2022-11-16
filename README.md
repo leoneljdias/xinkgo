@@ -1,7 +1,5 @@
-# XINKGO
-> Everything have a place and a purpose
-
 ![](logo.png)
+> Everything has a place and a purpose
 
 ## Build Setup
 

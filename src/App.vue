@@ -32,7 +32,7 @@ export default {
 
       { 'http-equiv': 'Content-Type', content: 'text/html; charset=utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { name: 'description', content: 'Everything have a place and a purpose' },
+      { name: 'description', content: 'Everything has a place and a purpose' },
 
       { property: 'og:title', content: 'XINKGO' },
       { property: 'og:site_name', content: 'www.xinkgo.com' },
@@ -48,14 +48,14 @@ export default {
       { name: 'twitter:card', content: 'summary' },
       { name: 'twitter:site', content: 'https://www.xinkgo.com/' },
       { name: 'twitter:title', content: 'XINKGO' },
-      { name: 'twitter:description', content: 'Everything have a place and a purpose' },
+      { name: 'twitter:description', content: 'Everything has a place and a purpose' },
       // Your twitter handle, if you have one.
       { name: 'twitter:creator', content: '@alligatorio' },
       { name: 'twitter:image:src', content: 'https://www.xinkgo.com/logo.png' },
 
       // Google / Schema.org markup:
       { itemprop: 'name', content: 'XINKGO' },
-      { itemprop: 'description', content: 'Everything have a place and a purpose' },
+      { itemprop: 'description', content: 'Everything has a place and a purpose' },
       { itemprop: 'image', content: 'https://www.xinkgo.com/logo.png' }
     ]
   },
