@@ -1,26 +1,19 @@
 export default {
   state: {
-    identifier: '',
-    password: '',
     loading: false,
-    disabled: false
+    alert: {
+      open: false,
+      msg: null
+    }
   },
 
   mutations: {
-    updateIdentifier (state, identifier) {
-      state.identifier = identifier
-    },
-
-    updatePassword (state, password) {
-      state.password = password
-    },
-
     setLoading (state, loading) {
       state.loading = loading
     },
 
-    setDisabled (state, disabled) {
-      state.disabled = disabled
+    setAlert (state, alert) {
+      state.alert = alert
     }
   }
 }

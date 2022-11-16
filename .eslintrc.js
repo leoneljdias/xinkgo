@@ -14,7 +14,8 @@ module.exports = {
     "vue/html-indent": "off",
     "vue/max-attributes-per-line": "off",
     "vue/html-closing-bracket-newline": "off",
-    "vue/max-attributes-per-line": "off"
+    "vue/max-attributes-per-line": "off",
+    "space-before-function-paren": "off"
   },
   parserOptions: {
     parser: 'babel-eslint'

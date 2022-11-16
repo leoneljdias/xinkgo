@@ -4,6 +4,7 @@ import router from './router'
 import store from './plugins/vuex'
 import vuetify from './plugins/vuetify'
 import firebase from 'firebase/app'
+import 'firebase/storage'
 
 import '@/styles/styles.scss'
 

@@ -17,15 +17,15 @@
       <v-container class="pa-0 text-left">
         <v-text-field ref="input" v-model="email" class="mt-3" :label="$vuetify.lang.t('$vuetify.auth.sign-up.email')"
           name="email" type="text" hide-details="auto" solo outlined flat dense />
-
-        <v-alert v-if="errorCode" dense class="mt-3" border="top" color="red lighten-2" dark>
-          {{ errorMessage }}
-        </v-alert>
       </v-container>
     </v-form>
     <div class="transition-wrapper">
       <div class="d-flex justify-space-between mt-3">
-        <v-btn class="text-none letter-spacing-0" style="min-width: 100%;" color="primary" depressed
+        <v-btn class="text-none letter-spacing-0 pa-0" text color="primary" @click="$router.push({ name: 'signin' })">
+          {{ $vuetify.lang.t('$vuetify.auth.sign-up.instead') }}
+        </v-btn>
+
+        <v-btn class="text-none letter-spacing-0" style="min-width: 88px;" color="primary" depressed
           @click="recoverPassword">
           {{ $vuetify.lang.t('$vuetify.auth.sign-up.done') }}
         </v-btn>
@@ -65,9 +65,8 @@ export default {
           this.$router.push('/auth/sendpasswordresetemail')
         })
         .catch((error) => {
+          this.$store.commit('setAlert', { open: true, code: error.code, msg: error.message })
           this.$store.commit('setLoading', false)
-          this.errorCode = error.code
-          this.errorMessage = error.message
         })
     }
   }

@@ -40,16 +40,12 @@
         {{ $vuetify.lang.t('$vuetify.auth.sign-in.login') }}
       </v-btn>
 
-      <v-alert v-if="errorCode" dense class="mt-5" border="top" color="red lighten-2" dark>
-        {{ errorMessage }}
-      </v-alert>
-
       <div class="d-flex justify-space-between">
-        <v-btn class="text-none letter-spacing-0 pa-0" plain color="primary" @click="$router.push({ name: 'signup' })">
+        <v-btn class="text-none letter-spacing-0 pa-0" text color="primary" @click="$router.push({ name: 'signup' })">
           {{ $vuetify.lang.t('$vuetify.auth.sign-in.create-account') }}
         </v-btn>
 
-        <v-btn class="text-none letter-spacing-0 pa-0" plain color="primary" @click="$router.push({ name: 'forgotpassword' })">
+        <v-btn class="text-none letter-spacing-0 pa-0" text color="primary" @click="$router.push({ name: 'forgotpassword' })">
           {{ $vuetify.lang.t('$vuetify.auth.sign-in.forgot-password') }} ?
         </v-btn>
       </div>
@@ -89,15 +85,13 @@ export default {
           this.$store.commit('setLoading', false)
 
           if (this.user.email && !this.user.emailVerified) {
-            this.errorCode = true
-            this.errorMessage = `"${this.user.email}" needs to be verified before access is granted.`
+            this.$store.commit('setAlert', { open: true, code: true, msg: `"${this.user.email}" needs to be verified before access is granted` })
           } else {
             this.$router.push('/main/nearby')
           }
         })
         .catch((error) => {
-          this.errorCode = error.code
-          this.errorMessage = error.message
+          this.$store.commit('setAlert', { open: true, code: error.code, msg: error.message })
           this.$store.commit('setLoading', false)
         })
     },
@@ -115,8 +109,7 @@ export default {
           this.$router.push('/main/nearby')
         })
         .catch((error) => {
-          this.errorCode = error.code
-          this.errorMessage = error.message
+          this.$store.commit('setAlert', { open: true, code: error.code, msg: error.message })
           this.$store.commit('setLoading', false)
         })
     },
@@ -134,8 +127,7 @@ export default {
           this.$router.push('/main/nearby')
         })
         .catch((error) => {
-          this.errorCode = error.code
-          this.errorMessage = error.message
+          this.$store.commit('setAlert', { open: true, code: error.code, msg: error.message })
           this.$store.commit('setLoading', false)
         })
     }

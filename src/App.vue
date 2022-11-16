@@ -1,6 +1,14 @@
 <template>
   <v-app>
     <v-progress-linear v-if="loading" indeterminate height="10" color="#e84e36" />
+    <v-snackbar v-model="alert.open" top timeout="5000" dark>
+      {{ alert.msg }}
+      <template v-slot:action="{ attrs }">
+        <v-btn color="red" text v-bind="attrs" @click="alert.open = false">
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
     <v-main>
       <router-view />
     </v-main>
@@ -60,8 +68,16 @@ export default {
     //
   }),
   computed: {
-    loading () {
+    loading() {
       return this.$store.state.loading
+    },
+    alert: {
+      get() {
+        return this.$store.state.alert
+      },
+      set(val) {
+        this.$store.commit('setAlert', val)
+      }
     }
   }
 }

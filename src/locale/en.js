@@ -25,6 +25,7 @@ export default {
       done: 'Done',
       password: 'Password',
       'password-props': 'Use 8 or more characters with a mix of letters, numbers & symbols',
+      'confirm-password': 'Confirm Password',
       title: 'Vuetify'
     },
     'checkemail':
@@ -50,5 +51,10 @@ export default {
       privacy: 'Privacy',
       terms: 'Terms'
     }
+  },
+  profile: {
+    name: 'Name',
+    email: 'Email',
+    photo: 'Photo'
   }
 }
