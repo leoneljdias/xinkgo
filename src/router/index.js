@@ -1,49 +1,26 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+import {
+  createWebHistory,
+  createRouter
+} from "vue-router";
 
-import firebase from 'firebase/app'
-import 'firebase/auth'
+import {
+  getAuth,
+  onAuthStateChanged
+} from 'firebase/auth'
 
-const Auth = () => import('@/views/Auth/Auth')
-const Signin = () => import('@/views/Auth/Signin')
-const Signup = () => import('@/views/Auth/Signup')
-const Checkemail = () => import('@/views/Auth/Checkemail')
-const Forgotpassword = () => import('@/views/Auth/Forgotpassword')
-const Sendpasswordresetemail = () => import('@/views/Auth/Sendpasswordresetemail')
-const Main = () => import('@/views/Main/Main')
-const Nearbyview = () => import('@/views/Main/Nearbyview')
-const Favoritesview = () => import('@/views/Main/Favoritesview')
-const Recentsview = () => import('@/views/Main/Recentsview')
-const ProfileView = () => import('@/views/Main/ProfileView')
-
-Vue.use(VueRouter)
+const Login = () => import('@/components/Login')
+const Main = () => import('@/components/Main')
+const Map = () => import('@/components/Map')
 
 const routes = [{
   path: '/',
-  redirect: '/main/nearby'
+  redirect: '/main/map'
 }, {
   path: '/auth',
-  component: Auth,
   children: [{
-    path: 'signin',
-    component: Signin,
-    name: 'signin'
-  }, {
-    path: 'signup',
-    component: Signup,
-    name: 'signup'
-  }, {
-    path: 'checkemail',
-    component: Checkemail,
-    name: 'checkemail'
-  }, {
-    path: 'forgotpassword',
-    component: Forgotpassword,
-    name: 'forgotpassword'
-  }, {
-    path: 'Sendpasswordresetemail',
-    component: Sendpasswordresetemail,
-    name: 'Sendpasswordresetemail'
+    path: 'login',
+    component: Login,
+    name: 'login'
   }]
 }, {
   path: '/main',
@@ -53,40 +30,26 @@ const routes = [{
     requiresAuth: true
   },
   children: [{
-    path: 'nearby',
-    name: 'nearby',
-    component: Nearbyview
-  },
-  {
-    path: 'favorites',
-    name: 'favorites',
-    component: Favoritesview
-  },
-  {
-    path: 'recents',
-    name: 'recents',
-    component: Recentsview
-  },
-  {
-    path: 'profile',
-    name: 'profile',
-    component: ProfileView
-  }
-  ]
+    path: 'map',
+    name: 'map',
+    component: Map
+  }]
 }]
 
-const router = new VueRouter({
-  mode: 'history',
-  routes
-})
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+});
 
 router.beforeEach((to, from, next) => {
-  const currentUser = firebase.auth().currentUser
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-  if (requiresAuth && !currentUser) {
-    next('/auth/signin')
-  }
-  next()
+  const auth = getAuth();
+  onAuthStateChanged(auth, (user) => {
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+    if (requiresAuth && !user) {
+      next('/auth/login')
+    }
+    next()
+  });
 })
 
 export default router
