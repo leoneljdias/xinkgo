@@ -1,19 +1,9 @@
-export default {
-  state: {
-    loading: false,
-    alert: {
-      open: false,
-      msg: null
-    }
+import { createStore } from 'vuex'
+
+import user from "./user";
+
+export default new createStore({
+  modules: {
+    user
   },
-
-  mutations: {
-    setLoading (state, loading) {
-      state.loading = loading
-    },
-
-    setAlert (state, alert) {
-      state.alert = alert
-    }
-  }
-}
+});

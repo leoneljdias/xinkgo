@@ -1,34 +1,20 @@
-import Vue from 'vue'
+/**
+ * main.js
+ *
+ * Bootstraps Vuetify and other plugins then mounts the App`
+ */
+
+// Components
 import App from './App.vue'
-import router from './router'
-import store from './plugins/vuex'
-import vuetify from './plugins/vuetify'
-import firebase from 'firebase/app'
-import 'firebase/storage'
 
-import '@/styles/styles.scss'
+// Composables
+import { createApp } from 'vue'
 
-const firebaseConfig = {
-  apiKey: process.env.VUE_APP_FIREBASE_API_KEY,
-  authDomain: process.env.VUE_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.VUE_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.VUE_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.VUE_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.VUE_APP_FIREBASE_APP_ID,
-  measurementId: process.env.VUE_APP_FIREBASE_MEASUREMENT_ID
-}
+// Plugins
+import { registerPlugins } from '@/plugins'
 
-Vue.config.productionTip = false
+const app = createApp(App)
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig)
+registerPlugins(app)
 
-firebase.auth().onAuthStateChanged(user => {
-  new Vue({
-    router,
-    store,
-    vuetify,
-    firebase,
-    render: h => h(App)
-  }).$mount('#app')
-})
+app.mount('#app')

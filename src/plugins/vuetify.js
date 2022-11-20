@@ -1,30 +1,27 @@
-import Vue from 'vue'
-import Vuetify from 'vuetify/lib'
-import en from '../locale/en'
-import Meta from 'vue-meta'
+/**
+ * plugins/vuetify.js
+ *
+ * Framework documentation: https://vuetifyjs.com`
+ */
 
-Vue.use(Vuetify)
+// Styles
+import '@mdi/font/css/materialdesignicons.css'
+import 'vuetify/styles'
 
-Vue.use(Meta)
+// Composables
+import { createVuetify } from 'vuetify'
 
-Vue.component('signin', {
-  methods: {
-    changeLocale () {
-      this.$vuetify.lang.current = 'en'
-    }
-  }
-})
-
-export default new Vuetify({
-  lang: {
-    locales: { en },
-    current: 'en'
-  },
+// https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
+export default createVuetify({
+  ssr: true,
   theme: {
     themes: {
       light: {
-        primary: '#e84e36' // #E53935
-      }
-    }
-  }
+        colors: {
+          primary: '#1867C0',
+          secondary: '#5CBBF6',
+        },
+      },
+    },
+  },
 })
