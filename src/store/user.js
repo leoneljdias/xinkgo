@@ -3,111 +3,189 @@ import {
   GoogleAuthProvider,
   FacebookAuthProvider,
   TwitterAuthProvider,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
   signInWithPopup,
   signOut
 } from "firebase/auth";
 
+import {
+  getFirestore,
+  doc,
+  collection,
+  setDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 
 export default {
+  namespaced: true,
   state: {
     loggedIn: false,
-    data: null
-  },
-  getters: {
-    user(state) {
-      return state.user
-    }
+    data: null,
+    acceptCookies: false,
+    location: null
   },
   mutations: {
     SET_LOGGED_IN(state, value) {
-      state.loggedIn = value;
+      state.loggedIn = value
     },
     SET_USER(state, data) {
-      state.data = data;
-    }
+      state.data = data
+    },
+    SET_ACCEPT_COOKIES(state, value) {
+      state.acceptCookies = value
+    },
+    SET_LOCATION(state, location) {
+      state.location = location
+    },
   },
   actions: {
-    async register(context, {
-      email,
-      password,
-      name
+    async facebook({
+      dispatch,
+      commit
     }) {
-      const auth = getAuth();
-      const response = await createUserWithEmailAndPassword(auth, email, password)
-      if (response) {
-        context.commit('SET_USER', response.user)
-        response.user.updateProfile({
-          displayName: name
-        })
-      } else {
-        throw new Error('Unable to register user')
-      }
-    },
-
-    async logIn(context, {
-      email,
-      password
-    }) {
-      const auth = getAuth();
-      const response = await signInWithEmailAndPassword(auth, email, password)
-      if (response) {
-        context.commit('SET_USER', response.user)
-      } else {
-        throw new Error('login failed')
-      }
-    },
-
-    async facebook(context) {
       const auth = getAuth();
       const provider = new FacebookAuthProvider();
       const response = await signInWithPopup(auth, provider)
       if (response) {
-        context.commit('SET_USER', response.user)
+        const user = response.user
+        await dispatch('writeUserData', {
+          uid: user.uid,
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          emailVerified: user.emailVerified
+        })
+        commit("SET_USER", {
+          uid: user.uid,
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          emailVerified: user.emailVerified
+        })
       } else {
         throw new Error('login failed')
       }
     },
 
-    async google(context) {
+    async google({
+      dispatch,
+      commit
+    }) {
       const auth = getAuth();
       const provider = new GoogleAuthProvider();
       const response = await signInWithPopup(auth, provider)
       if (response) {
-        context.commit('SET_USER', response.user)
+        const user = response.user
+        await dispatch('writeUserData', {
+          uid: user.uid,
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          emailVerified: user.emailVerified
+        })
+        commit("SET_USER", {
+          uid: user.uid,
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          emailVerified: user.emailVerified
+        })
       } else {
         throw new Error('login failed')
       }
     },
 
-    async twitter(context) {
+    async twitter({
+      dispatch,
+      commit
+    }) {
       const auth = getAuth();
       const provider = new TwitterAuthProvider();
       const response = await signInWithPopup(auth, provider)
       if (response) {
-        context.commit('SET_USER', response.user)
+        const user = response.user
+        await dispatch('writeUserData', {
+          uid: user.uid,
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          emailVerified: user.emailVerified
+        })
+        commit("SET_USER", {
+          uid: user.uid,
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          emailVerified: user.emailVerified
+        })
       } else {
         throw new Error('login failed')
       }
     },
 
-    async logOut(context) {
-      const auth = getAuth();
-      await signOut(auth)
-      context.commit('SET_USER', null)
+    async writeUserData(_, user) {
+
+      let userid = user.uid;
+      const db = getFirestore();
+      const userRef = collection(db, "users");
+
+      setDoc(doc(userRef, userid), user, {
+        merge: true
+      }).catch(error => {
+        console.log(error.message)
+      });
     },
 
-    async fetchUser(context, user) {
-      context.commit("SET_LOGGED_IN", user !== null);
-      if (user) {
-        context.commit("SET_USER", {
-          displayName: user.displayName,
-          email: user.email
-        });
-      } else {
-        context.commit("SET_USER", null);
-      }
-    }
+    async logOut({
+      dispatch,
+      commit
+    }) {
+      const auth = getAuth()
+      await signOut(auth)
+      commit('SET_USER', null)
+      commit("SET_LOCATION", null)
+    },
+
+    setAcceptCookies({
+      dispatch,
+      commit
+    }, value) {
+      commit('SET_ACCEPT_COOKIES', value)
+    },
+
+    fetchUser({
+      dispatch,
+      commit
+    }, user) {
+      commit("SET_USER", {
+        uid: user.uid,
+        displayName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        emailVerified: user.emailVerified
+      })
+    },
+
+    async setLocation({
+      dispatch,
+      commit
+    }, payload) {
+
+      let userid = payload.uid;
+      const db = getFirestore();
+      const userRef = collection(db, "users");
+
+      let dataLocation = {
+        lat: payload.coords.latitude,
+        lng: payload.coords.longitude,
+        active: true,
+        timestamp: serverTimestamp()
+      };
+
+      await setDoc(doc(userRef, userid), dataLocation, {
+        merge: true
+      });
+
+      commit("SET_LOCATION", location)
+    },
   }
 };

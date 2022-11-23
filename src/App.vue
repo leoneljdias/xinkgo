@@ -1,10 +1,15 @@
 <template>
   <v-app>
-    <v-main>
-      <router-view></router-view>
-    </v-main>
+    <router-view></router-view>
   </v-app>
 </template>
 
 <script setup>
 </script>
+
+<style>
+html,
+body {
+  overflow: hidden !important;
+}
+</style>

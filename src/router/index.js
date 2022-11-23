@@ -11,6 +11,8 @@ import {
 const Login = () => import('@/components/Login')
 const Main = () => import('@/components/Main')
 const Map = () => import('@/components/Map')
+const Feed = () => import('@/components/Feed')
+const Profile = () => import('@/components/Profile')
 
 const routes = [{
   path: '/',
@@ -33,6 +35,14 @@ const routes = [{
     path: 'map',
     name: 'map',
     component: Map
+  },{
+    path: 'feed',
+    name: 'feed',
+    component: Feed
+  },{
+    path: 'profile',
+    name: 'profile',
+    component: Profile
   }]
 }]
 
