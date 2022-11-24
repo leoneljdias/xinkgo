@@ -3,7 +3,7 @@
     <v-container class="fill-height pa-10">
       <v-responsive class="d-flex align-center text-center fill-height">
 
-        <v-img height="100" src="../src/assets/logo.png" />
+        <v-img height="100" :src="logoUrl" />
 
         <span class="text-medium-emphasis">Everything has a place and a purpose</span>
 
@@ -101,6 +101,8 @@ const openPrivacyPolice = ref(false)
 const error = ref(null)
 const store = useStore()
 const router = useRouter()
+
+import logoUrl from '@/assets/logo.png'
 
 const auth = async (provider) => {
   try {
