@@ -21,7 +21,7 @@ const people = computed(() => store.state.people.all)
 onMounted(() => {
   map.value = new maplibregl.Map({
     container: 'map', // container id
-    style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json', // style URL
+    style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json', // style URL
     center: [0, 0], // starting position [lng, lat]
     zoom: 1 // starting zoom
   });
@@ -29,23 +29,7 @@ onMounted(() => {
   // Add zoom and rotation controls to the map.
   map.value.addControl(new maplibregl.NavigationControl());
 
-  // Locate user
-  let geolocate =
-    new maplibregl.GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true
-      },
-      trackUserLocation: true,
-      showUserLocation: false,
-      showAccuracyCircle: false
-    });
-
-  // Add geolocate control to the map.
-  map.value.addControl(geolocate);
-
   map.value.on('load', () => {
-    //Enable geolocate
-    geolocate.trigger();
 
     // Customize user marker
     var userIcon = document.createElement('div');
@@ -70,6 +54,13 @@ onMounted(() => {
 
         /* Update User Location in Firestore */
         store.dispatch('user/setLocation', { uid: user.value.uid, coords: position.coords })
+
+        // Fly to a random location
+        map.value.flyTo({
+          center: [position.coords.longitude, position.coords.latitude],
+          zoom: 14,
+          essential: true
+        });
 
       });
     } else { /* geolocation IS NOT available, handle it */ }
@@ -114,9 +105,6 @@ function addUserMarker(id, user) {
 
 }
 
-
-
-
 </script>
 
 <style>
@@ -135,9 +123,5 @@ function addUserMarker(id, user) {
   border-radius: 50px;
   width: 48px;
   height: 48px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
-  -moz-box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
-  -webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
-  -o-box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
 }
 </style>
