@@ -76,12 +76,12 @@
         </v-card>
       </v-dialog>
 
-      <!--v-snackbar dark v-model="showCookies">
-      We use cookies and other tracking technologies to improve your browsing experience on our website
-      <template v-slot:actions>
-        <v-btn variant="text" @click="acceptCookies">Ok</v-btn>
-      </template>
-    </v-snackbar-->
+      <v-snackbar dark v-model="showCookies">
+        We use cookies and other tracking technologies to improve your browsing experience on our website
+        <template v-slot:actions>
+          <v-btn variant="text" @click="acceptCookies">Ok</v-btn>
+        </template>
+      </v-snackbar>
     </v-container>
   </v-main>
   <v-footer class="pa-0 text-center">

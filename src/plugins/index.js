@@ -20,6 +20,7 @@ export function registerPlugins (app) {
   app.use(router)
   // Setup plugin for defaults or `$screens` (optional)
   app.use(SetupCalendar, {})
+
   // Use the components
   app.component('Calendar', Calendar)
   app.component('DatePicker', DatePicker)

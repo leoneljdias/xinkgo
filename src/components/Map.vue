@@ -34,6 +34,8 @@ onMounted(() => {
     // Customize user marker
     var userIcon = document.createElement('div');
     userIcon.className = 'marker';
+    //userIcon.innerHTML = '<i class="mdi-zodiac-' + user.value.zodiac + ' mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start" aria-hidden="true"></i>'
+
     userIcon.style.backgroundImage = 'url(' + user.value.photoURL + ')';
 
     // Add user marker to the map.
@@ -69,7 +71,7 @@ onMounted(() => {
 
 watch(people, async (newState) => {
   newState.forEach((person, id) => {
-    if (user.uid != id)
+    if (user && user.value.uid != id)
       addUserMarker(id, person);
   })
 })
@@ -80,8 +82,9 @@ function addUserMarker(id, user) {
   if (!markers.value.has(id)) {
     // Customize user marker
     var userIcon = document.createElement('div');
-    userIcon.className = 'marker';
-    userIcon.style.backgroundImage = 'url(' + user.photoURL + ')';
+    userIcon.className = 'user_marker';
+    userIcon.innerHTML = '<i class="mdi-zodiac-' + user.zodiac + ' mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"  aria-hidden="true"></i>'
+    //userIcon.style.backgroundImage = 'url(' + user.photoURL + ')';
 
     // Add user marker to the map.
     let marker = new maplibregl.Marker(userIcon)
@@ -113,15 +116,34 @@ function addUserMarker(id, user) {
   height: 100vh;
 }
 
-.marker {
+.user_marker {
   background-repeat: no-repeat;
   background-size: cover;
+  background: white;
   border: 2px solid white;
   overflow: hidden;
   -webkit-border-radius: 50px;
   -moz-border-radius: 50px;
   border-radius: 50px;
-  width: 48px;
-  height: 48px;
+  width: 32px;
+  height: 32px;
+}
+
+.marker {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background: white;
+  border: 2px solid white;
+  overflow: hidden;
+  -webkit-border-radius: 50px;
+  -moz-border-radius: 50px;
+  border-radius: 50px;
+  padding: 32px;
+  background-size: 64px;
+}
+
+.user_marker i {
+  margin-top: 6px;
+  margin-left: 5px;
 }
 </style>

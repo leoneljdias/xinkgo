@@ -15,6 +15,13 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "firebase/storage";
+
 export default {
   namespaced: true,
   state: {
@@ -47,20 +54,13 @@ export default {
       const response = await signInWithPopup(auth, provider)
       if (response) {
         const user = response.user
-        await dispatch('writeUserData', {
+        await dispatch('writeUserDataWithPhoto', {
           uid: user.uid,
           displayName: user.displayName,
           email: user.email,
           photoURL: user.photoURL,
           emailVerified: user.emailVerified
-        })
-        commit("SET_USER", {
-          uid: user.uid,
-          displayName: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          emailVerified: user.emailVerified
-        })
+        });
       } else {
         throw new Error('login failed')
       }
@@ -75,20 +75,14 @@ export default {
       const response = await signInWithPopup(auth, provider)
       if (response) {
         const user = response.user
-        await dispatch('writeUserData', {
+        await dispatch('writeUserDataWithPhoto', {
           uid: user.uid,
           displayName: user.displayName,
           email: user.email,
           photoURL: user.photoURL,
           emailVerified: user.emailVerified
-        })
-        commit("SET_USER", {
-          uid: user.uid,
-          displayName: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          emailVerified: user.emailVerified
-        })
+        });
+
       } else {
         throw new Error('login failed')
       }
@@ -103,36 +97,74 @@ export default {
       const response = await signInWithPopup(auth, provider)
       if (response) {
         const user = response.user
-        await dispatch('writeUserData', {
+        await dispatch('writeUserDataWithPhoto', {
           uid: user.uid,
           displayName: user.displayName,
           email: user.email,
           photoURL: user.photoURL,
           emailVerified: user.emailVerified
-        })
-        commit("SET_USER", {
-          uid: user.uid,
-          displayName: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          emailVerified: user.emailVerified
-        })
+        });
+
       } else {
         throw new Error('login failed')
       }
     },
 
-    async writeUserData(_, user) {
+    async writeUserData({
+      dispatch,
+      commit
+    }, user) {
 
       let userid = user.uid;
       const db = getFirestore();
       const userRef = collection(db, "users");
 
+      // Create a root reference
+      const storage = getStorage();
+
+      // Create a storage reference from our storage service
+      var storageRef = ref(storage, 'profiles/' + userid + '/profile.jpg')
+
       setDoc(doc(userRef, userid), user, {
         merge: true
-      }).catch(error => {
-        console.log(error.message)
-      });
+      })
+      commit("SET_USER", user);
+
+    },
+
+    async writeUserDataWithPhoto({
+      dispatch,
+      commit
+    }, user) {
+
+      let userid = user.uid;
+      const db = getFirestore();
+      const userRef = collection(db, "users");
+
+      // Create a root reference
+      const storage = getStorage();
+
+      // Create a storage reference from our storage service
+      var storageRef = ref(storage, 'profiles/' + userid + '/profile.jpg')
+
+      var xhr = new XMLHttpRequest();
+      xhr.responseType = 'blob';
+      xhr.onload = function (event) {
+        var blob = xhr.response;
+        // Save profile avatar
+        uploadBytes(storageRef, blob).then((snapshot) => {
+          getDownloadURL(snapshot.ref).then((url) => {
+            user.photoURL = url;
+            setDoc(doc(userRef, userid), user, {
+              merge: true
+            })
+            commit("SET_USER", user);
+          })
+        })
+      };
+      xhr.open('GET', user.photoURL);
+      xhr.send();
+
     },
 
     async logOut({
@@ -156,13 +188,7 @@ export default {
       dispatch,
       commit
     }, user) {
-      commit("SET_USER", {
-        uid: user.uid,
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        emailVerified: user.emailVerified
-      })
+      commit("SET_USER", user)
     },
 
     async setLocation({
