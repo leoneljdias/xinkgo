@@ -11,6 +11,8 @@
     "firebase": "^9.14.0",
     "maplibre-gl": "^2.4.0",
     "roboto-fontface": "*",
+    "sign-teller": "^3.2.2",
+    "v-calendar": "^3.0.0-alpha.8",
     "vue": "^3.2.38",
     "vue-router": "^4.1.6",
     "vuetify": "^3.0.0",

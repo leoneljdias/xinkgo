@@ -1,16 +1,16 @@
 <template>
   <v-container class="fill-height pa-0 main">
     <router-view />
-    <v-bottom-navigation grow v-model="state">
+    <v-bottom-navigation grow fixed v-model="state">
       <v-btn value="map">
         <v-icon>mdi-map-marker</v-icon>
         Map
       </v-btn>
 
-      <!--v-btn value="feed">
+      <v-btn value="feed">
         <v-icon>mdi-history</v-icon>
-        Feed
-      </v-btn-->
+        New
+      </v-btn>
 
       <v-btn value="profile">
         <v-icon>mdi-face-man</v-icon>

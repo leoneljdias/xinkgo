@@ -1,5 +1,5 @@
 <template>
-  [[Feed]]
+  [[Soon]]
 </template>
 
 <script setup>
