@@ -38,10 +38,6 @@
 
       </v-responsive>
 
-      <v-snackbar v-model="error" timeout="5000" location="top">
-        {{ error }}
-      </v-snackbar>
-
       <v-dialog v-model="openTermsOfService" scrollable transition="dialog-bottom-transition">
         <v-card>
           <v-card-title>Terms of Service</v-card-title>
@@ -75,13 +71,6 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-
-      <v-snackbar dark v-model="showCookies">
-        We use cookies and other tracking technologies to improve your browsing experience on our website
-        <template v-slot:actions>
-          <v-btn variant="text" @click="acceptCookies">Ok</v-btn>
-        </template>
-      </v-snackbar>
     </v-container>
   </v-main>
   <v-footer class="pa-0 text-center">
@@ -92,35 +81,47 @@
 
 </template>
 
-<script setup>
-import { ref, computed } from 'vue'
-import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
+<script>
 import Terms from '@/components/Terms'
 import Police from '@/components/Police'
 import logoUrl from '@/assets/logo.png'
 
-const openTermsOfService = ref(false)
-const openPrivacyPolice = ref(false)
+import { ref, computed} from 'vue'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 
-const error = ref(null)
-const store = useStore()
-const router = useRouter()
+export default {
+  setup() {
+    const store = useStore()
+    const router = useRouter()
 
-const auth = async (provider) => {
-  try {
-    await store.dispatch('user/' + provider)
-    router.push('/')
-  }
-  catch (err) {
-    error.value = err.message
+    const openTermsOfService = ref(false)
+    const openPrivacyPolice = ref(false)
+
+    function auth(provider) { store.dispatch('user/LOGIN', provider) }
+
+    function pushTo(route) { router.push(route)}
+
+    return {
+      auth,
+      openTermsOfService,
+      openPrivacyPolice,
+      logoUrl,
+      userLogged: computed(() => !!store.state.user.data && store.state.user.loggedIn),
+      pushTo
+    }
+  },
+  components:
+  {
+    Terms,
+    Police
+  },
+  watch: {
+    userLogged() {
+      if(this.userLogged)
+        this.pushTo("/")
+    },
   }
 }
-
-const acceptCookies = async () => {
-  await store.dispatch('user/setAcceptCookies', true)
-}
-
-const showCookies = computed(() => store.state.user.acceptCookies == false)
 
 </script>

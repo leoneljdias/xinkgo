@@ -34,15 +34,21 @@ const routes = [{
   children: [{
     path: 'map',
     name: 'map',
-    component: Map
-  },{
+    component: Map,
+    meta: {
+      noCache: true,
+    },
+  }, {
     path: 'feed',
     name: 'feed',
-    component: Feed
-  },{
+    component: Feed,
+    meta: {
+      noCache: true,
+    },
+  }, {
     path: 'profile',
     name: 'profile',
-    component: Profile
+    component: Profile,
   }]
 }]
 
@@ -57,9 +63,11 @@ router.beforeEach((to, from, next) => {
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
     if (requiresAuth && !user) {
       next('/auth/login')
+      return
     }
     next()
-  });
-})
+    return
+  })
+});
 
 export default router

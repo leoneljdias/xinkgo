@@ -2,7 +2,6 @@ import {
   getAuth,
   GoogleAuthProvider,
   FacebookAuthProvider,
-  TwitterAuthProvider,
   signInWithPopup,
   signOut
 } from "firebase/auth";
@@ -13,205 +12,104 @@ import {
   collection,
   setDoc,
   serverTimestamp,
+  getDoc
 } from "firebase/firestore";
-
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL
-} from "firebase/storage";
 
 export default {
   namespaced: true,
   state: {
-    loggedIn: false,
     data: null,
-    acceptCookies: false,
-    location: null
+    loggedIn: false
   },
   mutations: {
-    SET_LOGGED_IN(state, value) {
-      state.loggedIn = value
-    },
-    SET_USER(state, data) {
+    set_data(state, data) {
       state.data = data
     },
-    SET_ACCEPT_COOKIES(state, value) {
-      state.acceptCookies = value
-    },
-    SET_LOCATION(state, location) {
-      state.location = location
+    set_loggedIn(state, loggedIn) {
+      state.loggedIn = loggedIn
     },
   },
   actions: {
-    async facebook({
-      dispatch,
-      commit
-    }) {
+    async LOGIN(context, provider) {
+
       const auth = getAuth();
-      const provider = new FacebookAuthProvider();
-      const response = await signInWithPopup(auth, provider)
-      if (response) {
-        const user = response.user
-        await dispatch('writeUserDataWithPhoto', {
-          uid: user.uid,
-          displayName: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          emailVerified: user.emailVerified
-        });
-      } else {
-        throw new Error('login failed')
+
+      let authProvider = null
+      switch (provider) {
+        case 'facebook':
+          authProvider = new FacebookAuthProvider();
+          break;
+        case 'google':
+          authProvider = new GoogleAuthProvider();
+          break;
+        default:
+          break;
+      }
+
+      if (authProvider) {
+        const response = await signInWithPopup(auth, authProvider)
+
+        if (!response && !response.user) {
+          throw new Error('Login failed')
+        }
+
+        context.dispatch('UPDATE_DATA', response.user)
+        context.commit('set_loggedIn', response.user !== null)
       }
     },
 
-    async google({
-      dispatch,
-      commit
-    }) {
-      const auth = getAuth();
-      const provider = new GoogleAuthProvider();
-      const response = await signInWithPopup(auth, provider)
-      if (response) {
-        const user = response.user
-        await dispatch('writeUserDataWithPhoto', {
-          uid: user.uid,
-          displayName: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          emailVerified: user.emailVerified
-        });
-
-      } else {
-        throw new Error('login failed')
-      }
-    },
-
-    async twitter({
-      dispatch,
-      commit
-    }) {
-      const auth = getAuth();
-      const provider = new TwitterAuthProvider();
-      const response = await signInWithPopup(auth, provider)
-      if (response) {
-        const user = response.user
-        await dispatch('writeUserDataWithPhoto', {
-          uid: user.uid,
-          displayName: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          emailVerified: user.emailVerified
-        });
-
-      } else {
-        throw new Error('login failed')
-      }
-    },
-
-    async writeUserData({
-      dispatch,
-      commit
-    }, user) {
-
-      let userid = user.uid;
-      const db = getFirestore();
-      const userRef = collection(db, "users");
-
-      // Create a root reference
-      const storage = getStorage();
-
-      // Create a storage reference from our storage service
-      var storageRef = ref(storage, 'profiles/' + userid + '/profile.jpg')
-
-      setDoc(doc(userRef, userid), user, {
-        merge: true
-      })
-      commit("SET_USER", user);
-
-    },
-
-    async writeUserDataWithPhoto({
-      dispatch,
-      commit
-    }, user) {
-
-      let userid = user.uid;
-      const db = getFirestore();
-      const userRef = collection(db, "users");
-
-      // Create a root reference
-      const storage = getStorage();
-
-      // Create a storage reference from our storage service
-      var storageRef = ref(storage, 'profiles/' + userid + '/profile.jpg')
-
-      var xhr = new XMLHttpRequest();
-      xhr.responseType = 'blob';
-      xhr.onload = function (event) {
-        var blob = xhr.response;
-        // Save profile avatar
-        uploadBytes(storageRef, blob).then((snapshot) => {
-          getDownloadURL(snapshot.ref).then((url) => {
-            user.photoURL = url;
-            setDoc(doc(userRef, userid), user, {
-              merge: true
-            })
-            commit("SET_USER", user);
-          })
-        })
-      };
-      xhr.open('GET', user.photoURL);
-      xhr.send();
-
-    },
-
-    async logOut({
-      dispatch,
-      commit
-    }) {
+    async LOGGOUT(context) {
       const auth = getAuth()
+      context.commit('set_data', null)
+      context.commit('set_loggedIn', false)
       await signOut(auth)
-      commit('SET_USER', null)
-      commit("SET_LOCATION", null)
     },
 
-    setAcceptCookies({
-      dispatch,
-      commit
-    }, value) {
-      commit('SET_ACCEPT_COOKIES', value)
-    },
-
-    fetchUser({
-      dispatch,
-      commit
-    }, user) {
-      commit("SET_USER", user)
-    },
-
-    async setLocation({
-      dispatch,
-      commit
-    }, payload) {
-
-      let userid = payload.uid;
+    async UPDATE_DATA(context, user)
+    {
       const db = getFirestore();
       const userRef = collection(db, "users");
+      const userDocRef = doc(userRef, user.uid);
 
-      let dataLocation = {
-        lat: payload.coords.latitude,
-        lng: payload.coords.longitude,
-        active: true,
-        timestamp: serverTimestamp()
+      const userDoc = await getDoc(userDocRef);
+      if(userDoc.exists())
+        context.dispatch('FETCH_DATA', userDoc.data())
+      else
+        context.dispatch('FETCH_DATA', user)
+    },
+
+    async FETCH_DATA(context, user) {
+
+      const db = getFirestore();
+      const userRef = collection(db, "users");
+      const userDocRef = doc(userRef, user.uid);
+
+      let userData = {
+        uid: user.uid,
+        displayName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        emailVerified: user.emailVerified,
+        active: user.active,
+        zodiac: user.zodiac ?? 'capricorn',
+        birthday: user.birthday ?? '2001-01-01',
+        updatedAt: serverTimestamp(),
+        latitude: user.latitude,
+        longitude: user.longitude,
+        altitude: user.altitude,
+        altitudeAccuracy: user.altitudeAccuracy,
+        heading: user.heading,
+        speed: user.speed,
+        bio:user.bio,
+        accuracy: user.accuracy,
       };
 
-      await setDoc(doc(userRef, userid), dataLocation, {
+      await setDoc(userDocRef, userData, {
         merge: true
       });
 
-      commit("SET_LOCATION", location)
-    },
+      context.commit("set_data", userData);
+      context.commit('set_loggedIn', true)
+    }
   }
 };

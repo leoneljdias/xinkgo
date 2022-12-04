@@ -2,110 +2,155 @@
   <div id="map"></div>
 </template>
 
-<script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+<script>
+import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 
+import 'v-calendar/dist/style.css'
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const map = ref(null)
 const markers = ref(new Map())
-const userMarker = ref(null)
-const store = useStore()
+const myMarker = ref(null)
 
-const user = computed(() => store.state.user.data)
+export default {
+  setup() {
+    const store = useStore()
+    const location = ref(null)
+    const user = computed(() => store.state.user.data);
+    const people = computed(() => store.state.people.all)
 
-const people = computed(() => store.state.people.all)
+    const getAllPeople = () => { store.dispatch('people/GET_ALL') }
 
-onMounted(() => {
-  map.value = new maplibregl.Map({
-    container: 'map', // container id
-    style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json', // style URL
-    center: [0, 0], // starting position [lng, lat]
-    zoom: 1 // starting zoom
-  });
+    const saveUserPosition = () => {
+      if (user.value && user.value.uid && location.value) {
+        let userData = { ...user.value }
+        userData.latitude = location.value.latitude
+        userData.longitude = location.value.longitude
+        userData.altitude = location.value.altitude
+        userData.altitudeAccuracy = location.value.altitudeAccuracy
+        userData.heading = location.value.heading
+        userData.speed = location.value.speed
+        userData.accuracy = location.value.accuracy
+        store.dispatch("user/FETCH_DATA", userData);
+      }
+    }
 
-  // Add zoom and rotation controls to the map.
-  map.value.addControl(new maplibregl.NavigationControl());
+    return {
+      user,
+      people,
+      getAllPeople,
+      saveUserPosition,
+      location,
+    }
+  },
+  async mounted() {
+    this.initMap();
 
-  map.value.on('load', () => {
+    this.saveUserPosition();
+    this.getAllPeople();
 
-    // Customize user marker
-    var userIcon = document.createElement('div');
-    userIcon.className = 'marker';
-    //userIcon.innerHTML = '<i class="mdi-zodiac-' + user.value.zodiac + ' mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start" aria-hidden="true"></i>'
+    setInterval(() => {
+      this.saveUserPosition();
+      this.getAllPeople();
+    }, 30000);
+  },
 
-    userIcon.style.backgroundImage = 'url(' + user.value.photoURL + ')';
+  methods:
+  {
+    initMap() {
+      // Init Map
+      map.value = new maplibregl.Map({
+        container: 'map', // container id
+        style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json', // style URL
+        center: [0, 0], // starting position [lng, lat]
+        zoom: 1 // starting zoom
+      });
 
-    // Add user marker to the map.
-    userMarker.value = new maplibregl.Marker(userIcon)
+      // Add zoom and rotation controls to the map.
+      map.value.addControl(new maplibregl.NavigationControl());
 
-    // Locate the user
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((position) => {
+      // Add geolocate control to the map.
+      let geolocationControl = new maplibregl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true
+        },
+        // When active the map will receive updates to the device's location as it changes.
+        trackUserLocation: true,
+        // Draw an arrow next to the location dot to indicate which direction the device is heading.
+        showUserHeading: true
+      });
+
+      map.value.addControl(geolocationControl);
+
+      // Set an event listener that fires
+      // when a geolocate event occurs.
+      geolocationControl.on('geolocate', (data) => {
+        this.location = data.coords;
+      });
+
+      //waiting map loaded
+      map.value.on('load', () => {
+        geolocationControl.trigger();
+      })
+    },
+    addUserMarker(id, person) {
+
+      if (!person.latitude || !person.longitude) return;
+
+      if (!markers.value.has(id)) {
+        // Customize user marker
+        var userIcon = document.createElement('div');
+        userIcon.className = 'person_marker';
+        userIcon.innerHTML = '<i class="mdi-zodiac-' + person.zodiac + ' mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"  aria-hidden="true"></i>'
+        //userIcon.style.backgroundImage = 'url(' + user.photoURL + ')';
+
+        // Add user marker to the map.
+        let marker = new maplibregl.Marker(userIcon)
 
         //Update user marker to a new position
-        userMarker.value.setLngLat([position.coords.longitude, position.coords.latitude]);
+        marker.setLngLat([person.longitude, person.latitude]);
 
         /*
         Ensure the marker is added to the map.
         This is safe to call if it's already added.
         */
-        userMarker.value.addTo(map.value);
+        marker.addTo(map.value);
 
-        /* Update User Location in Firestore */
-        store.dispatch('user/setLocation', { uid: user.value.uid, coords: position.coords })
+        markers.value.set(id, marker);
+      } else {
+        let marker = markers.value.get(id);
+        //Update user marker to a new position
+        marker.setLngLat([person.longitude, person.latitude]);
+        markers.value.set(id, marker);
+      }
 
-        // Fly to a random location
-        map.value.flyTo({
-          center: [position.coords.longitude, position.coords.latitude],
-          zoom: 14,
-          essential: true
-        });
+    },
+  },
+  watch: {
+    people() {
+      this.people.forEach((person) => {
+        this.addUserMarker(person.id, person);
+      })
+    },
 
-      });
-    } else { /* geolocation IS NOT available, handle it */ }
-  });
-})
+    location() {
 
-watch(people, async (newState) => {
-  newState.forEach((person, id) => {
-    if (user && user.value.uid != id)
-      addUserMarker(id, person);
-  })
-})
-
-// add user marker
-function addUserMarker(id, user) {
-
-  if (!markers.value.has(id)) {
-    // Customize user marker
-    var userIcon = document.createElement('div');
-    userIcon.className = 'user_marker';
-    userIcon.innerHTML = '<i class="mdi-zodiac-' + user.zodiac + ' mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"  aria-hidden="true"></i>'
-    //userIcon.style.backgroundImage = 'url(' + user.photoURL + ')';
-
-    // Add user marker to the map.
-    let marker = new maplibregl.Marker(userIcon)
-
-    //Update user marker to a new position
-    marker.setLngLat([user.lng, user.lat]);
-
-    /*
-    Ensure the marker is added to the map.
-    This is safe to call if it's already added.
-    */
-    marker.addTo(map.value);
-
-    markers.value.set(id, marker);
-  } else {
-    let marker = markers.value.get(id);
-    //Update user marker to a new position
-    marker.setLngLat([user.lng, user.lat]);
-    markers.value.set(id, marker);
-  }
-
+      if (this.user) {
+        if (myMarker.value) {
+          myMarker.value._element.style.backgroundImage = 'url(' + this.user.photoURL + ')';
+        } else {
+          var userIcon = document.createElement('div');
+          userIcon.className = 'my_marker';
+          userIcon.style.backgroundImage = 'url(' + this.user.photoURL + ')';
+          myMarker.value = new maplibregl.Marker(userIcon)
+        }
+        myMarker.value.setLngLat([this.location.longitude, this.location.latitude]);
+        myMarker.value.addTo(map.value);
+      }
+    },
+  },
 }
 
 </script>
@@ -116,7 +161,7 @@ function addUserMarker(id, user) {
   height: 100vh;
 }
 
-.user_marker {
+.person_marker {
   background-repeat: no-repeat;
   background-size: cover;
   background: white;
@@ -129,7 +174,12 @@ function addUserMarker(id, user) {
   height: 32px;
 }
 
-.marker {
+.person_marker i {
+  margin-top: 6px;
+  margin-left: 5px;
+}
+
+.my_marker {
   background-repeat: no-repeat;
   background-size: cover;
   background: white;
@@ -140,10 +190,5 @@ function addUserMarker(id, user) {
   border-radius: 50px;
   padding: 32px;
   background-size: 64px;
-}
-
-.user_marker i {
-  margin-top: 6px;
-  margin-left: 5px;
 }
 </style>

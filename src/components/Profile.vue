@@ -1,8 +1,8 @@
 <template>
-  <div class="pa-5" v-if="user">
+  <div class="pa-5 text-center mb-15" v-if="user">
     <v-row cols="2">
       <v-col col="3">
-        <v-avatar v-ripple tile size="50" class="mb-3">
+        <v-avatar v-ripple tile size="50" class="mb-3" style="float:left">
           <img :src="user.photoURL" alt="avatar" width="50">
         </v-avatar>
       </v-col>
@@ -14,76 +14,34 @@
 
     <v-divider class="mb-3"></v-divider>
 
-    <p class="text-body-2 mb-3"><span style="line-height: 28px">Select your birthday:</span>
-      <v-chip :prepend-icon="'mdi-zodiac-' + user.zodiac.toLowerCase()" right
-        class="text-body-2 font-weight-medium mb-3" size="small" style="float:right" v-if="user.zodiac">{{
-            user.zodiac.toUpperCase()
-        }}</v-chip>
+    <h4 class="text-center text-body-2 mb-3" v-if="zodiac"><b>YOUR BIRTHDAY:</b> {{ birthday }} <v-icon size="x-small"
+        :icon="icon" class="mr-1"></v-icon>{{ zodiac }}</h4>
+
+    <DatePicker v-model="birthday" :key="datePickerKey" :model-config="modelConfig" color="gray" is-expanded
+      class="mb-3" :max-date='new Date()' />
+
+    <h4 class="text-center text-body-2 mb-3" v-if="zodiac"><b>YOUR BIO:</b></h4>
+
+    <v-textarea variant="outlined" v-model="bio"></v-textarea>
+
+    <p>
+      <v-btn class="mb-3" width="100%" max-width="400" prepend-icon="mdi-content-save" variant="outlined"
+        @click="update()">
+        Save and continue
+      </v-btn>
     </p>
-    <DatePicker v-model="date" :model-config="modelConfig" color="gray" is-expanded class="mb-3" />
 
-    <v-btn class="mb-3" width="100%" max-width="400" prepend-icon="mdi-content-save" variant="outlined"
-      @click="updateDataProfile">
-      Save
-    </v-btn>
-
-    <v-btn width="100%" max-width="400" prepend-icon="mdi-logout" variant="outlined" @click="logOut">
-      Logout
-    </v-btn>
-
-    <v-snackbar dark v-model="errorDate" color="red">
-      Please select your birthday to continue!
-    </v-snackbar>
-
-    <v-snackbar dark v-model="errorValidDate" color="red">
-      Please select valid date!
-    </v-snackbar>
-
+    <p>
+      <v-btn width="100%" max-width="400" prepend-icon="mdi-logout" variant="outlined" @click="logOut">
+        Logout
+      </v-btn>
+    </p>
 
   </div>
 </template>
 
-<script setup>
-import { computed, onMounted, watch, ref } from 'vue'
-import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
-import 'v-calendar/dist/style.css'
+<script>
 
-const store = useStore()
-const router = useRouter()
-const user = computed(() => store.state.user.data)
-const modelConfig = { type: 'string', mask: 'YYYY-MM-DD' };
-
-let date = ref(null)
-let errorDate = ref(false)
-let errorValidDate = ref(false)
-
-const logOut = async () => {
-  await store.dispatch('people/unsubscribe')
-  await store.dispatch('user/logOut')
-  router.push('/')
-}
-
-const updateDataProfile = async () => {
-  if (!date.value) {
-    errorValidDate.value = true;
-  } else {
-    errorValidDate.value = false;
-    await store.dispatch('user/writeUserData', user.value)
-    router.push('/')
-  }
-}
-
-const getSign = (value) => {
-  let index = zodiacs.findIndex(zodiac => {
-    let dateMin = new Date(zodiac.dateMin)
-    let dateMax = new Date(zodiac.dateMax)
-    let date = new Date(value)
-    return date.getDate() >= dateMin.getDate() && date.getMonth() == dateMin.getMonth() || date.getDate() <= dateMax.getDate() && date.getMonth() === dateMax.getMonth();
-  });
-
-  return zodiacs[index];
-}
 
 const zodiacs = [{
   "sign": "aries",
@@ -135,19 +93,98 @@ const zodiacs = [{
   "dateMax": "2000-03-20"
 }];
 
-watch(date, async (newState) => {
-  let zodiac = getSign(newState);
-  if (zodiac) {
-    user.value.zodiac = zodiac.sign;
-    user.value.birthday = newState;
-  } else {
-    errorDate.value = true;
-  }
-})
+import { useStore, } from 'vuex'
+import { useRouter } from 'vue-router'
+import 'v-calendar/dist/style.css'
 
-watch(user, async (newState) => {
-  date.value = newState.birthday;
-});
+
+export default {
+
+  setup() {
+
+    const store = useStore()
+    const router = useRouter()
+
+    const logOut = async () => {
+      await store.dispatch('user/LOGGOUT')
+      router.push('/')
+      return
+    }
+
+    const updateData = async (userData) => {
+      await store.dispatch("user/FETCH_DATA", userData);
+      router.push('/')
+    }
+
+    const getSign = (value) => {
+      let index = zodiacs.findIndex(zodiac => {
+        let dateMin = new Date(zodiac.dateMin)
+        let dateMax = new Date(zodiac.dateMax)
+        let date = new Date(value)
+        return date.getDate() >= dateMin.getDate() && date.getMonth() == dateMin.getMonth() || date.getDate() <= dateMax.getDate() && date.getMonth() === dateMax.getMonth();
+      });
+
+      return zodiacs[index];
+    }
+
+    return {
+      logOut,
+      updateData,
+      getSign,
+    }
+  },
+  data() {
+    return {
+      datePickerKey: 0,
+      birthday: new Date(),
+      zodiac: null,
+      bio: "",
+      modelConfig: { type: 'string', mask: 'YYYY-MM-DD' },
+      rules: [v => v.length <= 120 || 'Max 120 characters'],
+    }
+  },
+  mounted() {
+    if (!!this.user) this.fetchDataProfile(this.user.birthday)
+  },
+  computed:
+  {
+    user() {
+      return this.$store.state.user.data;
+    }
+  },
+  watch: {
+    user(data) {
+      if (!!data) {
+        this.bio = data.bio;
+        this.fetchDataProfile(data.birthday)
+      }
+    },
+    birthday(data) {
+      if (!!data) this.fetchDataProfile(data)
+    }
+  },
+  methods: {
+    fetchDataProfile(birthday) {
+      this.birthday = birthday;
+      this.datePickerKey++;
+      let zodiacSign = this.getSign(birthday);
+
+      if (zodiacSign && zodiacSign.sign) {
+        this.zodiac = zodiacSign.sign.toLowerCase()
+        this.icon = "mdi-zodiac-" + zodiacSign.sign.toLowerCase()
+      }
+    },
+    update() {
+      if (this.user && this.user.uid) {
+        let userData = { ...this.user }
+        userData.birthday = this.birthday;
+        userData.bio = this.bio;
+        userData.zodiac = this.zodiac;
+        this.updateData(userData)
+      }
+    }
+  }
+}
 
 </script>
 

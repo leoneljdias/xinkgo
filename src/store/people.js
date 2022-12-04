@@ -1,81 +1,41 @@
 import {
   getFirestore,
   collection,
+  getDocs,
   query,
-  where,
-  onSnapshot
 } from "firebase/firestore";
 
 export default {
   namespaced: true,
   state: {
-    people: [],
-    subscribe: null
+    all: [],
   },
   mutations: {
-    SET_PEOPLE(state, people) {
+    setPeople(state, people) {
       state.all = people
-    },
-    SET_SUBSCRIBE(state, subscribe) {
-      state.subscribe = subscribe
-    },
-    SET_UNSUBSCRIBE(state) {
-      let unsubscribe = state.subscribe;
-      unsubscribe();
-      state.subscribe = null;
     },
   },
   actions: {
-    unsubscribe(context)
-    {
-      context.commit("SET_UNSUBSCRIBE");
-    },
 
-    async subscribeChange(context, payload) {
+    async GET_ALL(context) {
+      let users = [];
       const db = getFirestore();
-      const q = query(collection(db, "users"), where("active", "==", true));
-
-      const subscribe = onSnapshot(q, (snapshot) => {
-        const users = new Map();
-        snapshot.docChanges().forEach((change) => {
-
-          let user = change.doc.data();
-          let id = change.doc.id;
-
-          if (change.type === "added") {
-            if (users.has(id)) {
-              let userToUpdate = users.get(id);
-              userToUpdate = Object.assign(userToUpdate, user);
-              users.set(id, userToUpdate);
-              console.log("Updated user: ", id);
-            } else {
-              users.set(id, user);
-              console.log("New user: ", id);
-            }
-          }
-
-          if (change.type === "modified") {
-            if (users.has(id)) {
-              let userToUpdate = users.get(id);
-              userToUpdate = Object.assign(userToUpdate, user);
-              users.set(id, userToUpdate);
-              console.log("Modified user: ", id);
-            } else {
-              users.set(id, user);
-              console.log("New user: ", id);
-            }
-          }
-          if (change.type === "removed") {
-            if (users.has(id)) {
-              users.delete(id);
-              console.log("Removed user: ", id);
-            }
-          }
-        });
-        context.commit("SET_PEOPLE", users);
+      const querySnapshot = await getDocs(collection(db, "users"));
+      querySnapshot.forEach((_user) => {
+        let userData = _user.data();
+        let user = {};
+        user.uid = userData.uid;
+        user.zodiac = userData.zodiac ?? 'capricorn',
+        user.birthday = userData.birthday ?? '2001-01-01',
+        user.longitude = userData.longitude;
+        user.latitude = userData.latitude;
+        user.bio = userData.bio ?? "Olá, sou novo aqui. Ainda não tenho bio";
+        user.displayName = userData.displayName;
+        user.photoURL = userData.photoURL;
+        users.push(user);
       });
 
-      context.commit("SET_SUBSCRIBE", subscribe);
+      context.commit("setPeople", users);
     }
   }
 };

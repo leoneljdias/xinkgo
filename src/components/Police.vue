@@ -64,6 +64,7 @@
       <li><span class="text-caption">Email Addresses</span></li>
       <li><span class="text-caption">Age</span></li>
       <li><span class="text-caption">Password</span></li>
+      <li><span class="text-caption">GPS Location</span></li>
     </ul>
   </div>
   <p><br></p>

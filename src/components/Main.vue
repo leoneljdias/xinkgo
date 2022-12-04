@@ -1,7 +1,12 @@
 <template>
   <v-container class="fill-height pa-0 main">
-    <router-view />
-    <v-bottom-navigation grow fixed v-model="state">
+    <router-view v-slot="{ Component }">
+      <keep-alive>
+        <component :is="Component" :key="$route.fullPath"></component>
+      </keep-alive>
+    </router-view>
+
+    <v-bottom-navigation grow fixed v-model="menu" color="red">
       <v-btn value="map">
         <v-icon>mdi-map-marker</v-icon>
         Map
@@ -9,7 +14,7 @@
 
       <v-btn value="feed">
         <v-icon>mdi-history</v-icon>
-        New
+        Users
       </v-btn>
 
       <v-btn value="profile">
@@ -20,41 +25,39 @@
   </v-container>
 </template>
 
-<script setup>
-import { ref, onMounted, watch } from 'vue'
-import { getAuth, onAuthStateChanged } from 'firebase/auth'
+<script>
+import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 
-import {
-  getFirestore,
-  doc,
-  collection,
-  getDoc
-} from "firebase/firestore";
+export default {
+  data: () => ({ menu: 'map' }),
+  setup() {
+    const store = useStore()
+    const router = useRouter();
 
-const state = ref("people")
-const store = useStore()
-const router = useRouter()
+    function pushTo(route) { router.push({ name: route }) }
 
-const db = getFirestore();
-const userRef = collection(db, "users");
-
-onMounted(() => {
-  const auth = getAuth();
-  onAuthStateChanged(auth, (user) => {
-    if (!!user) {
-      getDoc(doc(userRef, user.uid)).then((docUser) => {
-        store.dispatch("user/fetchUser", docUser.data())
-        store.dispatch("people/subscribeChange", user)
-      })
+    return {
+      user: computed(() => store.state.user.data),
+      pushTo
     }
-  });
-});
+  },
+  mounted()
+  {
+    this.menu = this.$route.name;
+  },
+  watch: {
+    $route (to){
+      this.menu = to.name;
+    },
+    menu(newValue, oldValue) {
+      if(newValue != oldValue)
+        this.pushTo(newValue);
+    }
+  },
+}
 
-watch(state, async (newState, oldState) => {
-  router.push({ name: newState })
-})
 </script>
 
 <style scoped>
