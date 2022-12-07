@@ -7,6 +7,8 @@
 // Styles
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
+import 'v-calendar/dist/style.css'
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 // Composables
 import { createVuetify } from 'vuetify'
@@ -15,14 +17,6 @@ import { createVuetify } from 'vuetify'
 export default createVuetify({
   ssr: true,
   theme: {
-    themes: {
-      light: {
-        colors: {
-          primary: '#1867C0',
-          secondary: '#5CBBF6',
-          anchor: 'black'
-        },
-      },
-    },
+    defaultTheme: 'light'
   },
 })

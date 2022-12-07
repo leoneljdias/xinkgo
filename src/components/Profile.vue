@@ -20,20 +20,10 @@
     <DatePicker v-model="birthday" :key="datePickerKey" :model-config="modelConfig" color="gray" is-expanded
       class="mb-3" :max-date='new Date()' />
 
-    <h4 class="text-center text-body-2 mb-3" v-if="zodiac"><b>YOUR BIO:</b></h4>
-
-    <v-textarea variant="outlined" v-model="bio"></v-textarea>
-
     <p>
       <v-btn class="mb-3" width="100%" max-width="400" prepend-icon="mdi-content-save" variant="outlined"
         @click="update()">
         Save and continue
-      </v-btn>
-    </p>
-
-    <p>
-      <v-btn width="100%" max-width="400" prepend-icon="mdi-logout" variant="outlined" @click="logOut">
-        Logout
       </v-btn>
     </p>
 
@@ -95,7 +85,6 @@ const zodiacs = [{
 
 import { useStore, } from 'vuex'
 import { useRouter } from 'vue-router'
-import 'v-calendar/dist/style.css'
 
 
 export default {
@@ -104,12 +93,6 @@ export default {
 
     const store = useStore()
     const router = useRouter()
-
-    const logOut = async () => {
-      await store.dispatch('user/LOGGOUT')
-      router.push('/')
-      return
-    }
 
     const updateData = async (userData) => {
       await store.dispatch("user/FETCH_DATA", userData);
@@ -128,7 +111,6 @@ export default {
     }
 
     return {
-      logOut,
       updateData,
       getSign,
     }
@@ -138,7 +120,6 @@ export default {
       datePickerKey: 0,
       birthday: new Date(),
       zodiac: null,
-      bio: "",
       modelConfig: { type: 'string', mask: 'YYYY-MM-DD' },
       rules: [v => v.length <= 120 || 'Max 120 characters'],
     }
@@ -155,7 +136,6 @@ export default {
   watch: {
     user(data) {
       if (!!data) {
-        this.bio = data.bio;
         this.fetchDataProfile(data.birthday)
       }
     },
@@ -178,7 +158,6 @@ export default {
       if (this.user && this.user.uid) {
         let userData = { ...this.user }
         userData.birthday = this.birthday;
-        userData.bio = this.bio;
         userData.zodiac = this.zodiac;
         this.updateData(userData)
       }

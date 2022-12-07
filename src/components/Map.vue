@@ -6,9 +6,7 @@
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 
-import 'v-calendar/dist/style.css'
 import maplibregl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
 
 const map = ref(null)
 const markers = ref(new Map())
@@ -60,12 +58,14 @@ export default {
   methods:
   {
     initMap() {
+
       // Init Map
       map.value = new maplibregl.Map({
         container: 'map', // container id
         style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json', // style URL
         center: [0, 0], // starting position [lng, lat]
-        zoom: 1 // starting zoom
+        zoom: 1, // starting zoom
+        attributionControl: false
       });
 
       // Add zoom and rotation controls to the map.
@@ -157,8 +157,8 @@ export default {
 
 <style>
 #map {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
 }
 
 .person_marker {

@@ -19,7 +19,3 @@ auth.onAuthStateChanged(user => {
   }
 });
 </script>
-
-<style>
-
-</style>

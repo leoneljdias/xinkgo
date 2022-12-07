@@ -10,10 +10,7 @@ import { fileURLToPath, URL } from 'node:url'
 export default defineConfig({
   plugins: [
     vue(),
-    // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
-    vuetify({
-      autoImport: true,
-    }),
+    vuetify({autoImport: true, styles: { configFile: 'src/settings.scss' }}),
   ],
   define: { 'process.env': {} },
   resolve: {

@@ -1,0 +1,4 @@
+// settings.scss
+@use 'vuetify/settings' with (
+  $body-font-family: 'Nunito'
+);

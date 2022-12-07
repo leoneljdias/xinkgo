@@ -15,6 +15,14 @@ import {
   getDoc
 } from "firebase/firestore";
 
+import {
+  getDatabase,
+  ref,
+  child,
+  push,
+  update
+} from "firebase/database";
+
 export default {
   namespaced: true,
   state: {
@@ -65,14 +73,13 @@ export default {
       await signOut(auth)
     },
 
-    async UPDATE_DATA(context, user)
-    {
+    async UPDATE_DATA(context, user) {
       const db = getFirestore();
       const userRef = collection(db, "users");
       const userDocRef = doc(userRef, user.uid);
 
       const userDoc = await getDoc(userDocRef);
-      if(userDoc.exists())
+      if (userDoc.exists())
         context.dispatch('FETCH_DATA', userDoc.data())
       else
         context.dispatch('FETCH_DATA', user)
@@ -100,7 +107,6 @@ export default {
         altitudeAccuracy: user.altitudeAccuracy,
         heading: user.heading,
         speed: user.speed,
-        bio:user.bio,
         accuracy: user.accuracy,
       };
 
@@ -110,6 +116,34 @@ export default {
 
       context.commit("set_data", userData);
       context.commit('set_loggedIn', true)
+    },
+
+    async WRITE_NEW_EVENT(context, data) {
+      const db = getDatabase();
+
+      let uid = data.uid;
+
+      // A post entry.
+      const postData = {
+        author: uid,
+        summary: data.summary,
+        lat: data.lat,
+        lng: data.lng,
+        timestamp: data.timestamp,
+        type: data.type,
+        timestamp: serverTimestamp(),
+      };
+
+      console.log(data);
+      // Get a key for a new Post.
+      const newPostKey = push(child(ref(db), 'posts')).key;
+
+      // Write the new post's data simultaneously in the posts list and the user's post list.
+      const updates = {};
+      updates['/posts/' + newPostKey] = postData;
+      updates['/user-posts/' + uid + '/' + newPostKey] = postData;
+
+      return await update(ref(db), updates);
     }
   }
 };
