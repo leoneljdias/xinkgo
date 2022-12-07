@@ -1,67 +1,40 @@
 <template>
-  <div id="map"></div>
+  <div id="general_map"></div>
 </template>
 
 <script>
-import { ref, computed } from 'vue'
-import { useStore } from 'vuex'
-
+import types from '@/types.json'
 import maplibregl from 'maplibre-gl';
 
-const map = ref(null)
-const markers = ref(new Map())
-const myMarker = ref(null)
-
 export default {
-  setup() {
-    const store = useStore()
-    const location = ref(null)
-    const user = computed(() => store.state.user.data);
-    const people = computed(() => store.state.people.all)
-
-    const getAllPeople = () => { store.dispatch('people/GET_ALL') }
-
-    const saveUserPosition = () => {
-      if (user.value && user.value.uid && location.value) {
-        let userData = { ...user.value }
-        userData.latitude = location.value.latitude
-        userData.longitude = location.value.longitude
-        userData.altitude = location.value.altitude
-        userData.altitudeAccuracy = location.value.altitudeAccuracy
-        userData.heading = location.value.heading
-        userData.speed = location.value.speed
-        userData.accuracy = location.value.accuracy
-        store.dispatch("user/FETCH_DATA", userData);
-      }
-    }
-
+  data() {
     return {
-      user,
-      people,
-      getAllPeople,
-      saveUserPosition,
-      location,
+      location: null,
+      markers: new Map(),
+      myMarker: null,
+      map: null,
     }
   },
   async mounted() {
     this.initMap();
-
-    this.saveUserPosition();
-    this.getAllPeople();
-
-    setInterval(() => {
-      this.saveUserPosition();
-      this.getAllPeople();
-    }, 30000);
+    this.$store.dispatch('event/GET_ALL');
   },
-
+  computed:
+  {
+    items() {
+      return this.$store.state.event.all;
+    },
+    user() {
+      return this.$store.state.user.data;
+    }
+  },
   methods:
   {
     initMap() {
 
       // Init Map
-      map.value = new maplibregl.Map({
-        container: 'map', // container id
+      this.map = new maplibregl.Map({
+        container: 'general_map', // container id
         style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json', // style URL
         center: [0, 0], // starting position [lng, lat]
         zoom: 1, // starting zoom
@@ -69,7 +42,7 @@ export default {
       });
 
       // Add zoom and rotation controls to the map.
-      map.value.addControl(new maplibregl.NavigationControl());
+      this.map.addControl(new maplibregl.NavigationControl());
 
       // Add geolocate control to the map.
       let geolocationControl = new maplibregl.GeolocateControl({
@@ -82,7 +55,7 @@ export default {
         showUserHeading: true
       });
 
-      map.value.addControl(geolocationControl);
+      this.map.addControl(geolocationControl);
 
       // Set an event listener that fires
       // when a geolocate event occurs.
@@ -91,63 +64,57 @@ export default {
       });
 
       //waiting map loaded
-      map.value.on('load', () => {
+      this.map.on('load', () => {
         geolocationControl.trigger();
       })
     },
-    addUserMarker(id, person) {
+    addEventMarker(id, event) {
 
-      if (!person.latitude || !person.longitude) return;
-
-      if (!markers.value.has(id)) {
-        // Customize user marker
+      if (!this.markers.has(id)) {
+        // Customize marker
         var userIcon = document.createElement('div');
-        userIcon.className = 'person_marker';
-        userIcon.innerHTML = '<i class="mdi-zodiac-' + person.zodiac + ' mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"  aria-hidden="true"></i>'
-        //userIcon.style.backgroundImage = 'url(' + user.photoURL + ')';
+        userIcon.className = 'event_marker';
+        userIcon.innerHTML = '<i class="' + this.getType(event.type).icon + ' mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"  aria-hidden="true"></i>'
 
-        // Add user marker to the map.
+        // Add marker to the map.
         let marker = new maplibregl.Marker(userIcon)
 
-        //Update user marker to a new position
-        marker.setLngLat([person.longitude, person.latitude]);
+        //Update marker to a new position
+        marker.setLngLat([event.lng, event.lat]);
 
         /*
         Ensure the marker is added to the map.
         This is safe to call if it's already added.
         */
-        marker.addTo(map.value);
-
-        markers.value.set(id, marker);
-      } else {
-        let marker = markers.value.get(id);
-        //Update user marker to a new position
-        marker.setLngLat([person.longitude, person.latitude]);
-        markers.value.set(id, marker);
+        marker.addTo(this.map);
+        this.markers.set(id, marker);
       }
-
     },
+    getType(value) {
+      return types.filter((item) => item.value == value)[0];
+    }
   },
   watch: {
-    people() {
-      this.people.forEach((person) => {
-        this.addUserMarker(person.id, person);
-      })
+    items: {
+      handler() {
+        this.items.forEach((event) => {
+          this.addEventMarker(event.key, event);
+        })
+      },
+      deep: true
     },
-
     location() {
-
       if (this.user) {
-        if (myMarker.value) {
-          myMarker.value._element.style.backgroundImage = 'url(' + this.user.photoURL + ')';
+        if (this.myMarker) {
+          this.myMarker._element.style.backgroundImage = 'url(' + this.user.photoURL + ')';
         } else {
           var userIcon = document.createElement('div');
           userIcon.className = 'my_marker';
           userIcon.style.backgroundImage = 'url(' + this.user.photoURL + ')';
-          myMarker.value = new maplibregl.Marker(userIcon)
+          this.myMarker = new maplibregl.Marker(userIcon)
         }
-        myMarker.value.setLngLat([this.location.longitude, this.location.latitude]);
-        myMarker.value.addTo(map.value);
+        this.myMarker.setLngLat([this.location.longitude, this.location.latitude]);
+        this.myMarker.addTo(this.map);
       }
     },
   },
@@ -156,12 +123,17 @@ export default {
 </script>
 
 <style>
-#map {
+html, body
+{
+  overflow-y: hidden !important;
+}
+
+#general_map {
   width: 100%;
   height: 100%;
 }
 
-.person_marker {
+.event_marker {
   background-repeat: no-repeat;
   background-size: cover;
   background: white;
@@ -174,7 +146,7 @@ export default {
   height: 32px;
 }
 
-.person_marker i {
+.event_marker i {
   margin-top: 6px;
   margin-left: 5px;
 }

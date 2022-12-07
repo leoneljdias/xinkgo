@@ -1,18 +1,12 @@
 <template>
-  <v-app-bar density="compact" app>
+  <v-app-bar app>
 
     <template v-slot:prepend>
-      <v-avatar size="small">
-        <v-img :src="user.photoURL" v-if="user" @click="(openSidebar = !openSidebar)"></v-img>
-      </v-avatar>
-    </template>
-
-    <template v-slot:title>
-      <div class="center-title"><img height="30" style="margin-top: 10px;" :src="logoUrl" /></div>
+      <img height="30" :src="logoUrl" @click="(openSidebar = !openSidebar)" />
     </template>
 
     <template v-slot:append>
-      <v-icon size="large" @click="(newDialogOpen = !newDialogOpen)">mdi-flag-plus</v-icon>
+      <v-icon size="large" @click="(newDialogOpen = !newDialogOpen)">mdi-plus</v-icon>
     </template>
 
   </v-app-bar>
@@ -28,40 +22,36 @@
     <v-divider></v-divider>
 
     <v-list nav>
-      <v-list-item prepend-icon="mdi-account" title="My Account" @click="value = 'profile'"></v-list-item>
       <v-list-item prepend-icon="mdi-logout" title="Sign Out" @click="logOut"></v-list-item>
     </v-list>
   </v-navigation-drawer>
 
   <v-main>
     <v-container class="fill-height pa-0 main">
-
+      <v-progress-linear indeterminate color="red" v-if="isLoading"></v-progress-linear>
       <router-view v-slot="{ Component }">
-        <keep-alive>
-          <component :is="Component" :key="$route.fullPath"></component>
-        </keep-alive>
+        <component :is="Component" :key="$route.fullPath"></component>
       </router-view>
 
     </v-container>
   </v-main>
 
-  <v-bottom-navigation grow app v-model="menu" density="compact" color="red">
+  <v-bottom-navigation grow app v-model="menu" color="red">
     <v-btn value="map">
-      <v-icon size="large">mdi-map-marker</v-icon>
+      <v-icon size="large">mdi-map-marker</v-icon>Map
     </v-btn>
 
     <v-btn value="feed">
-      <v-icon size="large">mdi-history</v-icon>
+      <v-icon size="large">mdi-history</v-icon>Feed
     </v-btn>
 
     <v-btn value="profile">
-      <v-icon size="large">mdi-face-man</v-icon>
+      <v-icon size="large">mdi-face-man</v-icon>Profile
     </v-btn>
   </v-bottom-navigation>
 </template>
 
 <script>
-import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 
@@ -94,10 +84,18 @@ export default {
     };
 
     return {
-      user: computed(() => store.state.user.data),
       pushTo,
       logOut,
       logoUrl
+    }
+  },
+  computed:
+  {
+    isLoading() {
+      return this.$store.state.event.isLoading;
+    },
+    user() {
+      return this.$store.state.user.data;
     }
   },
   mounted() {
@@ -108,8 +106,9 @@ export default {
       this.menu = to.name;
     },
     menu(newValue, oldValue) {
-      if (newValue != oldValue)
+      if (newValue != oldValue) {
         this.pushTo(newValue);
+      }
     }
   }
 }
@@ -121,9 +120,18 @@ export default {
   will-change: initial !important
 }
 
-.center-title {
-  margin-left: 50%;
-  transform: translate(-50%, 0);
-  text-align: center;
+.xMarker {
+  background-repeat: no-repeat;
+  background-size: contain;
+  background: transparent;
+  overflow: hidden;
+  width: 32px;
+  height: 32px;
 }
+
+.v-container
+{
+  max-width: 100%;
+}
+
 </style>

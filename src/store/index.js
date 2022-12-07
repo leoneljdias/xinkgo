@@ -1,11 +1,11 @@
 import { createStore } from 'vuex'
 
 import user from "./user";
-import people from "./people";
+import event from "./event";
 
 export default new createStore({
   modules: {
     user,
-    people
+    event
   },
 });

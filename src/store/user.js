@@ -7,27 +7,22 @@ import {
 } from "firebase/auth";
 
 import {
-  getFirestore,
-  doc,
-  collection,
-  setDoc,
-  serverTimestamp,
-  getDoc
-} from "firebase/firestore";
-
-import {
   getDatabase,
   ref,
+  set,
+  get,
   child,
-  push,
-  update
+  onValue,
+  serverTimestamp,
 } from "firebase/database";
+
 
 export default {
   namespaced: true,
   state: {
     data: null,
-    loggedIn: false
+    loggedIn: false,
+    events: []
   },
   mutations: {
     set_data(state, data) {
@@ -35,6 +30,12 @@ export default {
     },
     set_loggedIn(state, loggedIn) {
       state.loggedIn = loggedIn
+    },
+    add_event(state, event) {
+      state.events.push(event);
+    },
+    set_events(state, events) {
+      state.events = events;
     },
   },
   actions: {
@@ -74,22 +75,12 @@ export default {
     },
 
     async UPDATE_DATA(context, user) {
-      const db = getFirestore();
-      const userRef = collection(db, "users");
-      const userDocRef = doc(userRef, user.uid);
-
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists())
-        context.dispatch('FETCH_DATA', userDoc.data())
-      else
-        context.dispatch('FETCH_DATA', user)
+      context.dispatch('FETCH_DATA', user)
     },
 
     async FETCH_DATA(context, user) {
 
-      const db = getFirestore();
-      const userRef = collection(db, "users");
-      const userDocRef = doc(userRef, user.uid);
+      const db = getDatabase();
 
       let userData = {
         uid: user.uid,
@@ -97,53 +88,51 @@ export default {
         email: user.email,
         photoURL: user.photoURL,
         emailVerified: user.emailVerified,
-        active: user.active,
-        zodiac: user.zodiac ?? 'capricorn',
-        birthday: user.birthday ?? '2001-01-01',
         updatedAt: serverTimestamp(),
-        latitude: user.latitude,
-        longitude: user.longitude,
-        altitude: user.altitude,
-        altitudeAccuracy: user.altitudeAccuracy,
-        heading: user.heading,
-        speed: user.speed,
-        accuracy: user.accuracy,
+        latitude: user.latitude ?? 0,
+        longitude: user.longitude?? 0,
+        altitude: user.altitude?? 0,
+        altitudeAccuracy: user.altitudeAccuracy?? 0,
+        heading: user.heading?? 0,
+        speed: user.speed?? 0,
+        accuracy: user.accuracy?? 0,
       };
 
-      await setDoc(userDocRef, userData, {
-        merge: true
-      });
+      set(ref(db, 'users/' + user.uid), userData);
 
       context.commit("set_data", userData);
       context.commit('set_loggedIn', true)
     },
 
-    async WRITE_NEW_EVENT(context, data) {
+    async GET_EVENTS(context, useruid) {
+
+      context.commit("set_events", []);
       const db = getDatabase();
+      const dbRef = ref(db);
 
-      let uid = data.uid;
+      get(child(dbRef, `/user-events/` + useruid)).then((snapshot_events) => {
+        if (snapshot_events.exists()) {
+          snapshot_events.forEach((child) => {
+            let event = child.val();
+            event.key = child.key
+            onValue(ref(db, '/users/' + event.author), (snapshot_user) => {
+              const username = (snapshot_user.val() && snapshot_user.val().displayName) || 'Anonymous';
+              const photoURL = (snapshot_user.val() && snapshot_user.val().photoURL);
+              event["username"] = username;
+              event["photoURL"] = photoURL;
+              context.commit("add_event", event);
+            }, {
+              onlyOnce: true
+            })
+          });
 
-      // A post entry.
-      const postData = {
-        author: uid,
-        summary: data.summary,
-        lat: data.lat,
-        lng: data.lng,
-        timestamp: data.timestamp,
-        type: data.type,
-        timestamp: serverTimestamp(),
-      };
+        } else {
+          console.log("No data available");
+        }
+      }).catch((error) => {
+        console.error(error);
+      });
 
-      console.log(data);
-      // Get a key for a new Post.
-      const newPostKey = push(child(ref(db), 'posts')).key;
-
-      // Write the new post's data simultaneously in the posts list and the user's post list.
-      const updates = {};
-      updates['/posts/' + newPostKey] = postData;
-      updates['/user-posts/' + uid + '/' + newPostKey] = postData;
-
-      return await update(ref(db), updates);
     }
   }
 };
