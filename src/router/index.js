@@ -65,6 +65,12 @@ router.beforeEach((to, from, next) => {
       next('/auth/login')
       return
     }
+
+    if(to.fullPath == '/auth/login' && user) {
+      next('/main/map')
+      return
+    }
+
     next()
     return
   })

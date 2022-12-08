@@ -78,8 +78,8 @@ export default {
     };
 
     const logOut = async () => {
-      await store.dispatch('user/LOGGOUT')
-      router.push('/')
+      store.dispatch('user/LOGGOUT')
+      router.push('/auth/login')
       return
     };
 

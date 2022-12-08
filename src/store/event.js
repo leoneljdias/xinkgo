@@ -96,5 +96,29 @@ export default {
       await remove(ref(db, '/user-events/' + payload.uid + '/' + payload.key));
       return await context.dispatch('GET_ALL');
     },
+    async WRITE_MSG(context, data) {
+      const dbRef = ref(getDatabase());
+
+      let uid = data.uid;
+
+      // A message entry.
+      const msgData = {
+        eventKey: eventKey,
+        author: uid,
+        useruid: userid,
+        message: data.message,
+        createdat: serverTimestamp(),
+      };
+
+      // Get a key for a new Chat.
+      const newChatKey = push(child(dbRef, 'chats')).key;
+
+      // Write the new event's data simultaneously in the events list and the user's event list.
+      const updates = {};
+      updates['/chats/' + newChatKey] = msgData;
+      updates['/event-chats/' + eventKey + '/' + newChatKey] = msgData;
+
+      await update(dbRef, updates);
+    },
   }
 };
