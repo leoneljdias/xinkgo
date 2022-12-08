@@ -23,16 +23,16 @@ npm run build --report
 ## Release History
 
 * 0.0.1
-    [X] Init project and deploy to Firebase
-    [X] Authenticate using Facebook Login in Firebase
-    [X] Authenticate using Google in Firebase
-    [ ] Basic sign up new users with Firebase
-    [ ] SignIn with Email And Password
-    [ ] Recover Password
-    [ ] Delete User Account
-    [X] Post Event
-    [X] List Events
-    [X] Map Events
+    - [X] Init project and deploy to Firebase
+    - [X] Authenticate using Facebook Login in Firebase
+    - [X] Authenticate using Google in Firebase
+    - [ ] Basic sign up new users with Firebase
+    - [ ] SignIn with Email And Password
+    - [ ] Recover Password
+    - [ ] Delete User Account
+    - [X] Post Event
+    - [X] List Events
+    - [X] Map Events
     [X] My Events
 
 ## Meta
