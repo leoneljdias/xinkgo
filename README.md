@@ -1,4 +1,5 @@
-![](logo.png)
+![image](https://user-images.githubusercontent.com/4217810/206569593-2039a7bf-0cb1-4b9f-b4d6-cfd9b03c5da5.png)
+
 > Everything has a place and a purpose
 
 ## Build Setup
