@@ -21,7 +21,7 @@
 
     <v-card-text class="pb-0">
       <span class="text-body-2 text-black py-2 mb-4">{{ item.summary }}</span>
-      <div v-bind:id="mapid" class="map mt-2"></div>
+      <div v-bind:id="mapid" class="map mt-2" v-if="displayMap"></div>
     </v-card-text>
 
     <v-card-actions class="pr-5 pl-5">
@@ -46,22 +46,26 @@ import types from '@/types.json'
 import xIconPng from '@/assets/xicon.png'
 
 export default {
-  props: ["item", "user", "canDelete", "canContact"],
+  props: ["item", "user", "canDelete", "canContact", "displayMap"],
   async mounted() {
-    let map = new maplibregl.Map({
-      container: this.mapid,
-      style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-      center: [this.event.lng, this.event.lat],
-      zoom: 14,
-      attributionControl: false,
-      interactive: false
-    });
 
-    //add marker in map
-    var xIcon = document.createElement('div');
-    xIcon.className = 'xMarker';
-    xIcon.style.backgroundImage = 'url(' + xIconPng + ')';
-    new maplibregl.Marker(xIcon).setLngLat([this.event.lng, this.event.lat]).addTo(map);
+    if (this.displayMap) {
+      let map = new maplibregl.Map({
+        container: this.mapid,
+        style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+        center: [this.event.lng, this.event.lat],
+        zoom: 14,
+        attributionControl: false,
+        interactive: false
+      });
+
+      //add marker in map
+      var xIcon = document.createElement('div');
+      xIcon.className = 'xMarker';
+      xIcon.style.backgroundImage = 'url(' + xIconPng + ')';
+      new maplibregl.Marker(xIcon).setLngLat([this.event.lng, this.event.lat]).addTo(map);
+    }
+
   },
   computed:
   {
@@ -78,7 +82,7 @@ export default {
       return types.filter((item) => item.value == value)[0];
     },
     deleteEvent(key, uid) {
-      this.$store.dispatch('event/DELETE', { key, uid })
+      this.$store.dispatch('event/DELETE', { key, uid, user: this.user })
     }
   }
 }

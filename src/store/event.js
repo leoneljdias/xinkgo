@@ -28,8 +28,11 @@ export default {
     },
   },
   actions: {
-    async WRITE(context, data) {
+    async WRITE(context, payload) {
       const dbRef = ref(getDatabase());
+
+      let data = payload.data;
+      let user = payload.user;
 
       let uid = data.uid;
 
@@ -54,16 +57,17 @@ export default {
       updates['/user-events/' + uid + '/' + newEventKey] = eventData;
 
       await update(dbRef, updates);
-      return await context.dispatch('GET_ALL');
+      return await context.dispatch('GET_ALL', user);
     },
-    async GET_ALL(context) {
+    async GET_ALL(context, user) {
 
       const db = getDatabase();
       const dbRef = ref(db);
       context.commit("set_loading", true);
       context.commit("set_events", []);
 
-      get(child(dbRef, `events`)).then((snapshot_events) => {
+      console.log(user);
+      get(child(dbRef, `events`).orderByChild("datetime").limitToFirst(1)).then((snapshot_events) => {
 
         if (snapshot_events.exists()) {
           snapshot_events.forEach((child) => {
@@ -94,7 +98,7 @@ export default {
       const db = getDatabase();
       await remove(ref(db, '/events/' + payload.key));
       await remove(ref(db, '/user-events/' + payload.uid + '/' + payload.key));
-      return await context.dispatch('GET_ALL');
+      return await context.dispatch('GET_ALL', payload.user);
     },
     async WRITE_MSG(context, data) {
       const dbRef = ref(getDatabase());

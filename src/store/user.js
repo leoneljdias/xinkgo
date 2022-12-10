@@ -2,7 +2,7 @@ import {
   getAuth,
   GoogleAuthProvider,
   FacebookAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
   signOut
 } from "firebase/auth";
 
@@ -56,7 +56,7 @@ export default {
       }
 
       if (authProvider) {
-        const response = await signInWithPopup(auth, authProvider)
+        const response = await signInWithRedirect(auth, authProvider)
 
         if (!response && !response.user) {
           throw new Error('Login failed')
@@ -102,6 +102,10 @@ export default {
 
       context.commit("set_data", userData);
       context.commit('set_loggedIn', true)
+    },
+
+    async SET_USER(context, user) {
+      context.commit("set_data", user);
     },
 
     async GET_EVENTS(context, useruid) {

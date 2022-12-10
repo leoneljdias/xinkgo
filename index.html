@@ -14,14 +14,14 @@
   <meta name="robots" content="index, follow">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="language" content="English">
-  
+
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" href="/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">  
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">  
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">  
-  <link rel="mask-icon" href="/masked-icon.png" color="#FFFFFF">  
-  <meta name="theme-color" content="#ffffff">  
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="mask-icon" href="/masked-icon.png" color="#FFFFFF">
+  <meta name="theme-color" content="#ffffff">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
@@ -38,7 +38,16 @@
   <meta property="twitter:description"
     content="Everything has a place and a purpose. Connect to XINKGO and explore the world around you">
   <meta property="twitter:image" content="https://xinkgo.com/xinkgo.png">
-  
+
+  <!-- Ad Sense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8166760540011721"
+    crossorigin="anonymous"></script>
+  <script>
+    var iOS = !!navigator.platform && /iPhone|iPod|iPad/.test(navigator.platform) && !window.MSStream;
+    if (iOS) {
+      document.querySelector('link[rel="manifest"]').setAttribute("rel", "no-on-ios");
+    }
+  </script>
 </head>
 
 <body>

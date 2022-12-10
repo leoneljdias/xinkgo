@@ -1,6 +1,6 @@
 <template>
   <div v-if="items.length > 0">
-    <Event v-for="item in items" :item="item" :user="user" :canDelete="true" :key="item.key" class="ma-2" />
+    <Event v-for="item in items" :item="item" :user="user" :canDelete="true" :displayMap="true" :key="item.key" class="ma-2" />
   </div>
   <v-container v-else-if="!isLoading" class="fill-height pa-10" fluid>
     <v-responsive class="d-flex align-center text-center fill-height">

@@ -1,23 +1,36 @@
 <template>
   <div id="general_map"></div>
+  <v-dialog v-model="selectedItem" max-width="600" hide-overlay full-width transition="dialog-bottom-transition"
+    v-if="selectedItem">
+    <v-card>
+      <Event :item="selectedItem" :user="user" :canDelete="false" :canContact="false" :displayMap="false"
+        :key="selectedItem.key" class="ma-2" />
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
 import types from '@/types.json'
 import maplibregl from 'maplibre-gl';
+import Event from '@/components/Event';
 
 export default {
+  components:
+  {
+    Event
+  },
   data() {
     return {
       location: null,
       markers: new Map(),
       myMarker: null,
       map: null,
+      selectedItem: null
     }
   },
   async mounted() {
     this.initMap();
-    this.$store.dispatch('event/GET_ALL');
+    this.$store.dispatch('event/GET_ALL', this.user);
   },
   computed:
   {
@@ -26,7 +39,7 @@ export default {
     },
     user() {
       return this.$store.state.user.data;
-    }
+    },
   },
   methods:
   {
@@ -61,6 +74,16 @@ export default {
       // when a geolocate event occurs.
       geolocationControl.on('geolocate', (data) => {
         this.location = data.coords;
+
+        this.user.latitude = this.location.latitude ?? 0
+        this.user.longitude = this.location.longitude ?? 0
+        this.user.altitude = this.location.altitude ?? 0
+        this.user.altitudeAccuracy = this.location.altitudeAccuracy ?? 0
+        this.user.heading = this.location.heading ?? 0
+        this.user.speed = this.location.speed ?? 0
+        this.user.accuracy = this.location.accuracy ?? 0
+
+        this.$store.dispatch('user/SET_USER', this.user)
       });
 
       //waiting map loaded
@@ -74,7 +97,16 @@ export default {
         // Customize marker
         var userIcon = document.createElement('div');
         userIcon.className = 'event_marker';
-        userIcon.innerHTML = '<i class="' + this.getType(event.type).icon + ' mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"  aria-hidden="true"></i>'
+        userIcon.innerHTML = '<i id="' + event.key + '" class="' + this.getType(event.type).icon + ' mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"  aria-hidden="true"></i>'
+
+        // Add Event Listener
+        userIcon.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.selectedItem = this.items.find((item) => item.key == e?.target?.id)
+
+          if (this.selectedItem)
+            this.map.flyTo({ center: [this.selectedItem.lng, this.selectedItem.lat], zoom: 14 });
+        });
 
         // Add marker to the map.
         let marker = new maplibregl.Marker(userIcon)
@@ -123,8 +155,8 @@ export default {
 </script>
 
 <style>
-html, body
-{
+html,
+body {
   overflow-y: hidden !important;
 }
 
