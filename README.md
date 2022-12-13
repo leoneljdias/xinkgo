@@ -33,7 +33,7 @@ npm run build --report
     - [X] Post Event
     - [X] List Events
     - [X] Map Events
-    [X] My Events
+    - [X] List My Events at Profile Page
 
 ## Meta
 
