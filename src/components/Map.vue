@@ -75,13 +75,13 @@ export default {
       geolocationControl.on('geolocate', (data) => {
         this.location = data.coords;
 
-        this.user.latitude = this.location.latitude ?? 0
-        this.user.longitude = this.location.longitude ?? 0
-        this.user.altitude = this.location.altitude ?? 0
-        this.user.altitudeAccuracy = this.location.altitudeAccuracy ?? 0
-        this.user.heading = this.location.heading ?? 0
-        this.user.speed = this.location.speed ?? 0
-        this.user.accuracy = this.location.accuracy ?? 0
+        this.user.latitude = this.location && this.location.latitude ? this.location.latitude : 0
+        this.user.longitude = this.location && this.location.longitude ? this.location.longitude : 0
+        this.user.altitude = this.location && this.location.altitude ? this.location.altitude : 0
+        this.user.altitudeAccuracy = this.location && this.location.altitudeAccuracy ? this.location.altitudeAccuracy : 0
+        this.user.heading = this.location && this.location.heading ? this.location.heading : 0
+        this.user.speed = this.location && this.location.speed ? this.location.speed : 0
+        this.user.accuracy = this.location && this.location.accuracy ? this.location.accuracy : 0
 
         this.$store.dispatch('user/SET_USER', this.user)
       });
@@ -136,7 +136,7 @@ export default {
       deep: true
     },
     location() {
-      if (this.user) {
+      if (this.user && this.user.photoURL) {
         if (this.myMarker) {
           this.myMarker._element.style.backgroundImage = 'url(' + this.user.photoURL + ')';
         } else {

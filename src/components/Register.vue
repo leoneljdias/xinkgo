@@ -6,53 +6,47 @@
     <v-container class="fill-height pa-10 text-center" fluid>
       <v-responsive class="mx-auto align-center text-center fill-height" max-width="400">
 
-        <v-img height="100" class="mb-2" :src="logoUrl" />
+        <v-img height="100" :src="logoUrl" />
 
-        <span class="text-medium-emphasis">Everything has a place and a purpose</span>
+        <span class="text-medium-emphasis">Welcome!</span>
 
-        <v-form v-model="form" @submit.prevent="onSubmit" class="mt-5">
+        <v-form v-model="form" @submit.prevent="onSubmit">
+
           <p>
-            <v-text-field v-model="email" :rules="[required]" variant="outlined" width="100%" label="Email" hide-details
+            <v-text-field v-model="email" :readonly="loading" :rules="[required]" variant="outlined" width="100%"
+              max-width="400" label="Email" hide-details density="compact" class="mt-3"></v-text-field>
+          </p>
+
+          <p>
+            <v-text-field v-model="password" type="password" :readonly="loading" :rules="[required]" variant="outlined"
+              width="100%" max-width="400" label="Password" hide-details density="compact" class="mt-6"></v-text-field>
+          </p>
+
+          <password-meter :password="password" />
+
+          <p>
+            <v-text-field v-model="confirmPassword" type="password" :readonly="loading" :rules="[required]"
+              variant="outlined" width="100%" max-width="400" label="Confirm your password" hide-details
               density="compact" class="mt-3"></v-text-field>
           </p>
 
           <p>
-            <v-text-field v-model="password" type="password" :rules="[required]" variant="outlined" width="100%" label="Password"
-              hide-details density="compact" class="mt-3"></v-text-field>
+            <v-btn :disabled="!form" :loading="loading" width="100%" max-width="400" type="submit" variant="tonal"
+              class="mt-6">Sign Up</v-btn>
           </p>
 
-          <p>
-            <v-btn :disabled="!form" :loading="loading" width="100%" type="submit" variant="tonal" class="mt-3">Sign In</v-btn>
-          </p>
+          <v-btn height="auto" color="black" class="text-caption ma-0 pa-0 mt-3" variant="text"
+            @click="pushTo('/auth/login')">
+            Already have an account?
+          </v-btn>
 
         </v-form>
 
-        <p>
-          <v-btn height="auto" color="black" class="text-caption ma-0 pa-0 mt-3" variant="text" @click="register">
-            No account yet?
-          </v-btn>
-        </p>
 
-
-        <v-divider class="ma-5"></v-divider>
-
-        <p>
-          <v-btn class="mb-3" width="100%" prepend-icon="mdi-google" dark variant="flat" color="blue"
-            @click="auth('google')">
-            Continue with Google
-          </v-btn>
-        </p>
-
-        <p>
-          <v-btn class="mb-3" width="100%" prepend-icon="mdi-facebook" dark variant="flat" color="indigo darken-1"
-            @click="auth('facebook')">
-            Continue with Facebook
-          </v-btn>
-        </p>
-
-        <v-col class="text-caption pa-0 ma-0 pt-1" style="line-height: 1.5">
-          Click "Sign In" or "Continue with" to agree to XINKGO's <v-btn height="auto" color="black" class="text-caption ma-0 pa-0"
-            variant="text" @click="openTermsOfService = true">Terms of Service</v-btn> and
+        <v-col class="text-caption pa-0 ma-0 pt-1 mt-10" style="line-height: 1.5">
+          Click "Sign Up" to agree to XINKGO's <v-btn height="auto" color="black" class="text-caption ma-0 pa-0"
+            variant="text" @click="openTermsOfService = true">Terms of Service</v-btn>
+          and
           <v-btn height="auto" color="black" class="text-caption ma-0 pa-0" variant="text"
             @click="openPrivacyPolice = true">
             Privacy Police</v-btn>
@@ -105,16 +99,16 @@
 
 <script>
 import errors from '@/errors.json'
-import Terms from '@/components/Terms'
-import Police from '@/components/Police'
 import logoUrl from '@/assets/logo.png'
-
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import PasswordMeter from 'vue-simple-password-meter';
+import Terms from '@/components/Terms'
+import Police from '@/components/Police'
 
 export default {
-  components:
-  {
+  components: {
+    PasswordMeter,
     Terms,
     Police
   },
@@ -137,10 +131,11 @@ export default {
     form: false,
     email: null,
     password: null,
+    confirmPassword: null,
     loading: false,
+    score: 0,
     error: false
   }),
-
   methods: {
     onSubmit() {
       if (!this.form) return
@@ -148,22 +143,22 @@ export default {
       this.loading = true
       this.error = false
 
-      this.$store.dispatch('user/SIGNIN', { email: this.email, password: this.password })
-        .then(() => { this.pushTo("/") })
+      if (this.match_check()) {
+        this.loading = false;
+        return;
+      }
+
+      this.$store.dispatch('user/REGISTER', { email: this.email, password: this.password })
+        .then(() => { this.pushTo('/auth/emailVerification') })
         .catch((error) => { this.loading = false; this.error = error; });
 
     },
     required(v) {
       return !!v || 'Field is required'
     },
-    auth(provider) {
-
-      this.$store.dispatch('user/LOGIN', provider)
-        .then(() => { this.pushTo("/") })
-        .catch((error) => { this.error = error; });
-    },
-    register() {
-      this.pushTo('/auth/register')
+    match_check() {
+      if (this.password !== this.confirmPassword) this.error = { code: "xinkgo/password-match" };
+      return this.password !== this.confirmPassword
     },
     getErrorMessage(code) {
       return errors[code];

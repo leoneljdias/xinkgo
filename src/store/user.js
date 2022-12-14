@@ -1,8 +1,11 @@
 import {
   getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   GoogleAuthProvider,
   FacebookAuthProvider,
   signInWithRedirect,
+  sendEmailVerification,
   signOut
 } from "firebase/auth";
 
@@ -39,7 +42,7 @@ export default {
     },
   },
   actions: {
-    async LOGIN(context, provider) {
+    LOGIN(context, provider) {
 
       const auth = getAuth();
 
@@ -55,16 +58,16 @@ export default {
           break;
       }
 
-      if (authProvider) {
-        const response = await signInWithRedirect(auth, authProvider)
-
-        if (!response && !response.user) {
-          throw new Error('Login failed')
-        }
-
-        context.dispatch('UPDATE_DATA', response.user)
-        context.commit('set_loggedIn', response.user !== null)
-      }
+      return new Promise((resolve, reject) => {
+        signInWithRedirect(auth, authProvider).then((response) => {
+            context.dispatch('UPDATE_DATA', response.user)
+            context.commit('set_loggedIn', response.user !== null)
+            resolve(user);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
     },
 
     async LOGGOUT(context) {
@@ -72,6 +75,40 @@ export default {
       context.commit('set_data', null)
       context.commit('set_loggedIn', false)
       await signOut(auth)
+    },
+
+    REGISTER(_, payload) {
+      const auth = getAuth();
+
+      return new Promise((resolve, reject) => {
+        createUserWithEmailAndPassword(auth, payload.email, payload.password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            sendEmailVerification(user).then((data) => {
+                resolve(data);
+              }).catch((error) => {
+                reject(error);
+              });
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
+    },
+
+    SIGNIN(_, payload) {
+      const auth = getAuth();
+
+      return new Promise((resolve, reject) => {
+        signInWithEmailAndPassword(auth, payload.email, payload.password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            resolve(user);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
     },
 
     async UPDATE_DATA(context, user) {
@@ -90,12 +127,12 @@ export default {
         emailVerified: user.emailVerified,
         updatedAt: serverTimestamp(),
         latitude: user.latitude ?? 0,
-        longitude: user.longitude?? 0,
-        altitude: user.altitude?? 0,
-        altitudeAccuracy: user.altitudeAccuracy?? 0,
-        heading: user.heading?? 0,
-        speed: user.speed?? 0,
-        accuracy: user.accuracy?? 0,
+        longitude: user.longitude ?? 0,
+        altitude: user.altitude ?? 0,
+        altitudeAccuracy: user.altitudeAccuracy ?? 0,
+        heading: user.heading ?? 0,
+        speed: user.speed ?? 0,
+        accuracy: user.accuracy ?? 0,
       };
 
       set(ref(db, 'users/' + user.uid), userData);

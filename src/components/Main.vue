@@ -15,7 +15,7 @@
 
   <v-navigation-drawer v-model="openSidebar" app clipped absolute temporary v-if="user">
     <template v-slot:prepend>
-      <v-list-item lines="two" :prepend-avatar="user.photoURL" :title="user.displayName"
+      <v-list-item lines="two" :prepend-avatar="user.photoURL ?? photoUrl" :title="user.displayName ?? user.email.split('@')[1]"
         subtitle="Logged in"></v-list-item>
     </template>
 
@@ -56,6 +56,7 @@ import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 
 import logoUrl from '@/assets/logo.png'
+import photoUrl from '@/assets/user.png'
 
 import New from '@/components/New';
 
@@ -86,6 +87,7 @@ export default {
     return {
       pushTo,
       logOut,
+      photoUrl,
       logoUrl
     }
   },

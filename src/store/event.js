@@ -66,8 +66,7 @@ export default {
       context.commit("set_loading", true);
       context.commit("set_events", []);
 
-      console.log(user);
-      get(child(dbRef, `events`).orderByChild("datetime").limitToFirst(1)).then((snapshot_events) => {
+      get(child(dbRef, `events`)).then((snapshot_events) => {
 
         if (snapshot_events.exists()) {
           snapshot_events.forEach((child) => {

@@ -9,6 +9,8 @@ import {
 } from 'firebase/auth'
 
 const Login = () => import('@/components/Login')
+const Register = () => import('@/components/Register')
+const EmailVerification = () => import('@/components/EmailVerification')
 const Main = () => import('@/components/Main')
 const Map = () => import('@/components/Map')
 const Feed = () => import('@/components/Feed')
@@ -23,6 +25,14 @@ const routes = [{
     path: 'login',
     component: Login,
     name: 'login'
+  },{
+    path: 'register',
+    component: Register,
+    name: 'register'
+  },{
+    path: 'emailVerification',
+    component: EmailVerification,
+    name: 'emailVerification'
   }]
 }, {
   path: '/main',
@@ -66,7 +76,17 @@ router.beforeEach((to, from, next) => {
       return
     }
 
-    if(to.fullPath == '/auth/login' && user) {
+    if(requiresAuth && user && !user.emailVerified) {
+      next('/auth/emailVerification')
+      return
+    }
+
+    if(to.fullPath == '/auth/login' && user && !user.emailVerified) {
+      next()
+      return
+    }
+
+    else if(to.fullPath == '/auth/login' && user) {
       next('/main/map')
       return
     }
