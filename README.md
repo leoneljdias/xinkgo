@@ -22,18 +22,22 @@ npm run build --report
 
 ## Release History
 
-* 0.0.1
+* 0.0.5
     - [X] Init project and deploy to Firebase
     - [X] Authenticate using Facebook Login in Firebase
     - [X] Authenticate using Google in Firebase
-    - [ ] Basic sign up new users with Firebase
-    - [ ] SignIn with Email And Password
+    - [X] Basic sign up new users with Firebase
+    - [X] SignIn with Email And Password
     - [ ] Recover Password
     - [ ] Delete User Account
-    - [X] Post Event
-    - [X] List Events
-    - [X] Map Events
-    - [X] List My Events at Profile Page
+    - [X] Post New Event
+    - [X] Feed
+    - [X] Your Activities
+    - [X] List My Event
+    - [ ] Edit Profile (name and photo)
+    - [ ] Crop photo
+    - [X] Show map and events
+    - [ ] Limit feed and events by user location
 
 ## Meta
 
