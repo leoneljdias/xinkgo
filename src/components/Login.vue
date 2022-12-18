@@ -13,16 +13,16 @@
         <v-form v-model="form" @submit.prevent="onSubmit" class="mt-5">
           <p>
             <v-text-field v-model="email" :rules="[required]" variant="outlined" width="100%" label="Email" hide-details
-              density="compact" class="mt-3"></v-text-field>
+              density="compact" class="mt-5"></v-text-field>
           </p>
 
           <p>
             <v-text-field v-model="password" type="password" :rules="[required]" variant="outlined" width="100%" label="Password"
-              hide-details density="compact" class="mt-3"></v-text-field>
+              hide-details density="compact" class="mt-4"></v-text-field>
           </p>
 
           <p>
-            <v-btn :disabled="!form" :loading="loading" width="100%" type="submit" variant="tonal" class="mt-3">Sign In</v-btn>
+            <v-btn :disabled="!form" :loading="loading" width="100%" type="submit" variant="tonal" class="mt-4">Sign In</v-btn>
           </p>
 
         </v-form>
@@ -96,7 +96,7 @@
     </v-container>
   </v-main>
   <v-footer class="pa-0 text-center">
-    <v-col class="text-caption pa-0 ma-0" style="line-height: 1.5">
+    <v-col class="text-caption pa-0 ma-0" style="line-height: 1.5; position: absolute; bottom: 5px;">
       <p class="text-caption text-disabled text-center">Copyright © 2022 XINKGO. All Rights Reserved</p>
     </v-col>
   </v-footer>
@@ -149,7 +149,7 @@ export default {
       this.error = false
 
       this.$store.dispatch('user/SIGNIN', { email: this.email, password: this.password })
-        .then(() => { this.pushTo("/") })
+        .then(() => { this.pushTo("/main/map") })
         .catch((error) => { this.loading = false; this.error = error; });
 
     },
@@ -159,7 +159,7 @@ export default {
     auth(provider) {
 
       this.$store.dispatch('user/LOGIN', provider)
-        .then(() => { this.pushTo("/") })
+        .then(() => { this.pushTo("/main/map") })
         .catch((error) => { this.error = error; });
     },
     register() {

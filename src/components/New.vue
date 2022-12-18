@@ -135,7 +135,7 @@ export default {
         datetime: this.datetime
       }
 
-      this.$store.dispatch('event/WRITE', {data: data, user: this.user});
+      this.$store.dispatch('event/WRITE', {data: eventData, user: this.user});
 
       this.reset();
       this.isOpen = false;

@@ -14,7 +14,7 @@ const EmailVerification = () => import('@/components/EmailVerification')
 const Main = () => import('@/components/Main')
 const Map = () => import('@/components/Map')
 const Feed = () => import('@/components/Feed')
-const Profile = () => import('@/components/Profile')
+const Events = () => import('@/components/Events')
 
 const routes = [{
   path: '/',
@@ -56,9 +56,9 @@ const routes = [{
       noCache: true,
     },
   }, {
-    path: 'profile',
-    name: 'profile',
-    component: Profile,
+    path: 'events',
+    name: 'events',
+    component: Events,
   }]
 }]
 
@@ -69,30 +69,15 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const auth = getAuth();
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, (currentUser) => {
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-    if (requiresAuth && !user) {
-      next('/auth/login')
-      return
+    if (requiresAuth && !currentUser) {
+      next('/auth/login');
+    } else if (requiresAuth && !currentUser.emailVerified) {
+      next('/auth/emailVerification');
+    } else {
+      next();
     }
-
-    if(requiresAuth && user && !user.emailVerified) {
-      next('/auth/emailVerification')
-      return
-    }
-
-    if(to.fullPath == '/auth/login' && user && !user.emailVerified) {
-      next()
-      return
-    }
-
-    else if(to.fullPath == '/auth/login' && user) {
-      next('/main/map')
-      return
-    }
-
-    next()
-    return
   })
 });
 

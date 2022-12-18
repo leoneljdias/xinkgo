@@ -3,8 +3,7 @@
   <v-dialog v-model="selectedItem" max-width="600" hide-overlay full-width transition="dialog-bottom-transition"
     v-if="selectedItem">
     <v-card>
-      <Event :item="selectedItem" :user="user" :canDelete="false" :canContact="false" :displayMap="false"
-        :key="selectedItem.key" class="ma-2" />
+      <Event :item="selectedItem" :user="user" :canDelete="false" :canContact="false" :displayMap="false" :key="selectedItem.key"/>
     </v-card>
   </v-dialog>
 </template>
@@ -75,15 +74,18 @@ export default {
       geolocationControl.on('geolocate', (data) => {
         this.location = data.coords;
 
-        this.user.latitude = this.location && this.location.latitude ? this.location.latitude : 0
-        this.user.longitude = this.location && this.location.longitude ? this.location.longitude : 0
-        this.user.altitude = this.location && this.location.altitude ? this.location.altitude : 0
-        this.user.altitudeAccuracy = this.location && this.location.altitudeAccuracy ? this.location.altitudeAccuracy : 0
-        this.user.heading = this.location && this.location.heading ? this.location.heading : 0
-        this.user.speed = this.location && this.location.speed ? this.location.speed : 0
-        this.user.accuracy = this.location && this.location.accuracy ? this.location.accuracy : 0
+        if (this.user && this.location) {
+          this.user.latitude = this.location && this.location.latitude ? this.location.latitude : 0
+          this.user.longitude = this.location && this.location.longitude ? this.location.longitude : 0
+          this.user.altitude = this.location && this.location.altitude ? this.location.altitude : 0
+          this.user.altitudeAccuracy = this.location && this.location.altitudeAccuracy ? this.location.altitudeAccuracy : 0
+          this.user.heading = this.location && this.location.heading ? this.location.heading : 0
+          this.user.speed = this.location && this.location.speed ? this.location.speed : 0
+          this.user.accuracy = this.location && this.location.accuracy ? this.location.accuracy : 0
 
-        this.$store.dispatch('user/SET_USER', this.user)
+          this.$store.dispatch('user/SET_USER', this.user)
+        }
+
       });
 
       //waiting map loaded

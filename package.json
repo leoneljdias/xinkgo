@@ -13,6 +13,7 @@
     "maplibre-gl": "^2.4.0",
     "v-calendar": "^3.0.0-alpha.8",
     "vue": "^3.2.38",
+    "vue-avatar-cropper": "^6.0.9",
     "vue-router": "^4.1.6",
     "vue-simple-password-meter": "^1.1.2",
     "vuetify": "^3.0.0",

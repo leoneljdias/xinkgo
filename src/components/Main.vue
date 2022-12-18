@@ -11,17 +11,19 @@
 
   </v-app-bar>
 
-  <New v-model="newDialogOpen" v-if="newDialogOpen"></New>
+  <New v-model="newDialogOpen" v-if="newDialogOpen" />
+  <Profile v-model="profileDialogOpen" v-if="profileDialogOpen" />
 
   <v-navigation-drawer v-model="openSidebar" app clipped absolute temporary v-if="user">
     <template v-slot:prepend>
-      <v-list-item lines="two" :prepend-avatar="user.photoURL ?? photoUrl" :title="user.displayName ?? user.email.split('@')[1]"
+      <v-list-item lines="two" :prepend-avatar="user.photoURL ?? photoUrl" :title="user.displayName ?? user.email.split('@')[0]"
         subtitle="Logged in"></v-list-item>
     </template>
 
     <v-divider></v-divider>
 
     <v-list nav>
+      <v-list-item prepend-icon="mdi-face-man" title="Profile" @click="openProfile"></v-list-item>
       <v-list-item prepend-icon="mdi-logout" title="Sign Out" @click="logOut"></v-list-item>
     </v-list>
   </v-navigation-drawer>
@@ -45,48 +47,33 @@
       <v-icon size="large">mdi-history</v-icon>Feed
     </v-btn>
 
-    <v-btn value="profile">
-      <v-icon size="large">mdi-face-man</v-icon>Profile
+    <v-btn value="events">
+      <v-icon size="large">mdi-face-man</v-icon>My Events
     </v-btn>
   </v-bottom-navigation>
 </template>
 
 <script>
-import { useStore } from 'vuex'
-import { useRouter } from 'vue-router'
-
 import logoUrl from '@/assets/logo.png'
 import photoUrl from '@/assets/user.png'
 
 import New from '@/components/New';
+import Profile from '@/components/Profile';
 
 export default {
   components:
   {
-    New
+    New,
+    Profile
   },
   data: () => ({
     menu: 'map',
     openSidebar: false,
-    newDialogOpen: false
+    newDialogOpen: false,
+    profileDialogOpen: false
   }),
   setup() {
-    const store = useStore()
-    const router = useRouter();
-
-    const pushTo = async (route) => {
-      router.push({ name: route })
-    };
-
-    const logOut = async () => {
-      store.dispatch('user/LOGGOUT')
-      router.push('/auth/login')
-      return
-    };
-
     return {
-      pushTo,
-      logOut,
       photoUrl,
       logoUrl
     }
@@ -102,6 +89,22 @@ export default {
   },
   mounted() {
     this.menu = this.$route.name;
+  },
+  methods:
+  {
+    pushTo(route) {
+      this.$router.push({ name: route })
+    },
+
+    openProfile() {
+      this.profileDialogOpen = true
+    },
+
+    logOut() {
+      this.$store.dispatch('user/LOGGOUT')
+      this.$router.push('/auth/login')
+      return
+    }
   },
   watch: {
     $route(to) {

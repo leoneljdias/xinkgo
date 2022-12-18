@@ -8,13 +8,13 @@
 
         <v-img height="100" :src="logoUrl" />
 
-        <span class="text-medium-emphasis">Welcome!</span>
+        <span class="h6">Create an account</span>
 
         <v-form v-model="form" @submit.prevent="onSubmit">
 
           <p>
             <v-text-field v-model="email" :readonly="loading" :rules="[required]" variant="outlined" width="100%"
-              max-width="400" label="Email" hide-details density="compact" class="mt-3"></v-text-field>
+              max-width="400" label="Email" hide-details density="compact" class="mt-5"></v-text-field>
           </p>
 
           <p>
@@ -90,7 +90,7 @@
     </v-container>
   </v-main>
   <v-footer class="pa-0 text-center">
-    <v-col class="text-caption pa-0 ma-0" style="line-height: 1.5">
+    <v-col class="text-caption pa-0 ma-0" style="line-height: 1.5; position: absolute; bottom: 5px;">
       <p class="text-caption text-disabled text-center">Copyright © 2022 XINKGO. All Rights Reserved</p>
     </v-col>
   </v-footer>

@@ -19,20 +19,23 @@ import {
   serverTimestamp,
 } from "firebase/database";
 
+import {
+  getStorage,
+  ref as refStorage,
+  uploadString,
+  getDownloadURL
+} from "firebase/storage";
+
 
 export default {
   namespaced: true,
   state: {
     data: null,
-    loggedIn: false,
     events: []
   },
   mutations: {
     set_data(state, data) {
       state.data = data
-    },
-    set_loggedIn(state, loggedIn) {
-      state.loggedIn = loggedIn
     },
     add_event(state, event) {
       state.events.push(event);
@@ -60,8 +63,7 @@ export default {
 
       return new Promise((resolve, reject) => {
         signInWithRedirect(auth, authProvider).then((response) => {
-            context.dispatch('UPDATE_DATA', response.user)
-            context.commit('set_loggedIn', response.user !== null)
+            const user = response.user;
             resolve(user);
           })
           .catch((error) => {
@@ -73,7 +75,6 @@ export default {
     async LOGGOUT(context) {
       const auth = getAuth()
       context.commit('set_data', null)
-      context.commit('set_loggedIn', false)
       await signOut(auth)
     },
 
@@ -85,10 +86,10 @@ export default {
           .then((userCredential) => {
             const user = userCredential.user;
             sendEmailVerification(user).then((data) => {
-                resolve(data);
-              }).catch((error) => {
-                reject(error);
-              });
+              resolve(data);
+            }).catch((error) => {
+              reject(error);
+            });
           })
           .catch((error) => {
             reject(error);
@@ -111,13 +112,46 @@ export default {
       });
     },
 
+    GET_DATA(context, user) {
+      return new Promise((resolve) => {
+        const db = getDatabase();
+        onValue(ref(db, 'users/' + user.uid), (snapshot) => {
+          const userData = snapshot.val();
+          context.commit("set_data", userData);
+          resolve(userData);
+        })
+      })
+    },
+
     async UPDATE_DATA(context, user) {
       context.dispatch('FETCH_DATA', user)
+    },
+
+    UPDATE_PHOTO(context, {uid, data}) {
+      return new Promise((resolve) => {
+        const storage = getStorage();
+        const avatarUserRef = refStorage(storage, `/profiles/` + uid + '/profile.jpg')
+
+        uploadString(avatarUserRef, data, 'data_url').then((snapshot) => {
+          getDownloadURL(snapshot.ref).then((downloadURL) => {
+            console.log('File available at', downloadURL);
+            resolve(downloadURL)
+          });
+        });
+      });
     },
 
     async FETCH_DATA(context, user) {
 
       const db = getDatabase();
+
+      console.log(user);
+
+      if (user.updatedPhoto) {
+        let uid = user.uid;
+        let data = user.photoURL;
+        user.photoURL = await context.dispatch('UPDATE_PHOTO', {uid: uid, data: data})
+      }
 
       let userData = {
         uid: user.uid,
@@ -125,20 +159,20 @@ export default {
         email: user.email,
         photoURL: user.photoURL,
         emailVerified: user.emailVerified,
+        bio: user.bio || "",
         updatedAt: serverTimestamp(),
-        latitude: user.latitude ?? 0,
-        longitude: user.longitude ?? 0,
-        altitude: user.altitude ?? 0,
-        altitudeAccuracy: user.altitudeAccuracy ?? 0,
-        heading: user.heading ?? 0,
-        speed: user.speed ?? 0,
-        accuracy: user.accuracy ?? 0,
+        latitude: user.latitude || 0,
+        longitude: user.longitude || 0,
+        altitude: user.altitude || 0,
+        altitudeAccuracy: user.altitudeAccuracy || 0,
+        heading: user.heading || 0,
+        speed: user.speed || 0,
+        accuracy: user.accuracy || 0,
       };
 
       set(ref(db, 'users/' + user.uid), userData);
 
       context.commit("set_data", userData);
-      context.commit('set_loggedIn', true)
     },
 
     async SET_USER(context, user) {
