@@ -34,8 +34,8 @@ npm run build --report
     - [X] Feed
     - [X] Your Activities
     - [X] List My Event
-    - [ ] Edit Profile (name and photo)
-    - [ ] Crop photo
+    - [X] Edit Profile (name and photo)
+    - [X] Crop photo
     - [X] Show map and events
     - [ ] Limit feed and events by user location
 
