@@ -22,7 +22,7 @@ npm run build --report
 
 ## Release History
 
-* 0.0.5
+* 1.0.0
     - [X] Init project and deploy to Firebase
     - [X] Authenticate using Facebook Login in Firebase
     - [X] Authenticate using Google in Firebase
