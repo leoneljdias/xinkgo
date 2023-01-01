@@ -24,7 +24,5 @@ auth.onAuthStateChanged(user => {
 </script>
 
 <style>
-.v-container {
-  max-width: 100%;
-}
+
 </style>

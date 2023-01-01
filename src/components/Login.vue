@@ -6,9 +6,7 @@
     <v-container class="fill-height pa-10 text-center" fluid>
       <v-responsive class="mx-auto align-center text-center fill-height" max-width="400">
 
-        <v-img height="100" class="mb-2" :src="logoUrl" />
-
-        <span class="text-medium-emphasis">Everything has a place and a purpose</span>
+        <v-img height="100" class="mb-0" :src="logoUrl" />
 
         <v-form v-model="form" @submit.prevent="onSubmit" class="mt-5">
           <p>
@@ -28,7 +26,7 @@
         </v-form>
 
         <p>
-          <v-btn height="auto" color="black" class="text-caption ma-0 pa-0 mt-3" variant="text" @click="register">
+          <v-btn height="auto" class="text-caption ma-0 pa-0 mt-3" variant="text" @click="register">
             No account yet?
           </v-btn>
         </p>
@@ -50,10 +48,10 @@
           </v-btn>
         </p>
 
-        <v-col class="text-caption pa-0 ma-0 pt-1" style="line-height: 1.5">
-          Click "Sign In" or "Continue with" to agree to XINKGO's <v-btn height="auto" color="black" class="text-caption ma-0 pa-0"
+        <v-col class="text-caption pa-0 ma-0 pt-1">
+          Click "Sign In" or "Continue with" to agree to XINKGO's <v-btn height="auto" class="text-caption ma-0 pa-0"
             variant="text" @click="openTermsOfService = true">Terms of Service</v-btn> and
-          <v-btn height="auto" color="black" class="text-caption ma-0 pa-0" variant="text"
+          <v-btn height="auto" class="text-caption ma-0 pa-0" variant="text"
             @click="openPrivacyPolice = true">
             Privacy Police</v-btn>
         </v-col>
@@ -94,12 +92,11 @@
         </v-card>
       </v-dialog>
     </v-container>
-  </v-main>
-  <v-footer class="pa-0 text-center">
-    <v-col class="text-caption pa-0 ma-0" style="line-height: 1.5; position: absolute; bottom: 5px;">
-      <p class="text-caption text-disabled text-center">Copyright © 2022 XINKGO. All Rights Reserved</p>
+
+    <v-col class="text-caption pa-0 ma-0" style="position: absolute; bottom: 5px;">
+      <p class="text-caption text-center">Copyright © 2022 XINKGO. All Rights Reserved</p>
     </v-col>
-  </v-footer>
+  </v-main>
 
 </template>
 

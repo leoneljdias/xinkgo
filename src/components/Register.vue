@@ -35,7 +35,7 @@
               class="mt-6">Sign Up</v-btn>
           </p>
 
-          <v-btn height="auto" color="black" class="text-caption ma-0 pa-0 mt-3" variant="text"
+          <v-btn height="auto" class="text-caption ma-0 pa-0 mt-3" variant="text"
             @click="pushTo('/auth/login')">
             Already have an account?
           </v-btn>
@@ -43,11 +43,11 @@
         </v-form>
 
 
-        <v-col class="text-caption pa-0 ma-0 pt-1 mt-10" style="line-height: 1.5">
-          Click "Sign Up" to agree to XINKGO's <v-btn height="auto" color="black" class="text-caption ma-0 pa-0"
+        <v-col class="text-caption pa-0 ma-0 pt-1 mt-10" >
+          Click "Sign Up" to agree to XINKGO's <v-btn height="auto" class="text-caption ma-0 pa-0"
             variant="text" @click="openTermsOfService = true">Terms of Service</v-btn>
           and
-          <v-btn height="auto" color="black" class="text-caption ma-0 pa-0" variant="text"
+          <v-btn height="auto" class="text-caption ma-0 pa-0" variant="text"
             @click="openPrivacyPolice = true">
             Privacy Police</v-btn>
         </v-col>
@@ -88,12 +88,11 @@
         </v-card>
       </v-dialog>
     </v-container>
-  </v-main>
-  <v-footer class="pa-0 text-center">
-    <v-col class="text-caption pa-0 ma-0" style="line-height: 1.5; position: absolute; bottom: 5px;">
-      <p class="text-caption text-disabled text-center">Copyright © 2022 XINKGO. All Rights Reserved</p>
+
+    <v-col class="text-caption pa-0 ma-0" style="position: absolute; bottom: 5px;">
+      <p class="text-caption text-center">Copyright © 2022 XINKGO. All Rights Reserved</p>
     </v-col>
-  </v-footer>
+  </v-main>
 
 </template>
 

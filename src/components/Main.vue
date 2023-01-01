@@ -48,8 +48,9 @@
     </v-btn>
 
     <v-btn value="events">
-      <v-icon size="large">mdi-face-man</v-icon>My Events
+      <v-icon size="large">mdi-face-man</v-icon>Profile
     </v-btn>
+
   </v-bottom-navigation>
 </template>
 

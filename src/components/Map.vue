@@ -99,7 +99,7 @@ export default {
         // Customize marker
         var userIcon = document.createElement('div');
         userIcon.className = 'event_marker';
-        userIcon.innerHTML = '<i id="' + event.key + '" class="' + this.getType(event.type).icon + ' mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"  aria-hidden="true"></i>'
+        userIcon.innerHTML = '<i id="' + event.key + '" class="' + this.getType(event.type).icon + ' mdi v-icon notranslate v-theme--dark v-icon--size-default v-icon--start"  aria-hidden="true"></i>'
 
         // Add Event Listener
         userIcon.addEventListener('click', (e) => {
@@ -170,8 +170,8 @@ body {
 .event_marker {
   background-repeat: no-repeat;
   background-size: cover;
-  background: white;
-  border: 2px solid white;
+  background: black !important;
+  border: 2px solid #89312a !important;
   overflow: hidden;
   -webkit-border-radius: 50px;
   -moz-border-radius: 50px;
@@ -181,7 +181,7 @@ body {
 }
 
 .event_marker i {
-  margin-top: 6px;
+  margin-top: 5px;
   margin-left: 5px;
 }
 

@@ -10,6 +10,7 @@
     "@mdi/font": "7.0.96",
     "@turf/turf": "^6.5.0",
     "firebase": "^9.14.0",
+    "html2canvas": "^1.4.1",
     "maplibre-gl": "^2.4.0",
     "v-calendar": "^3.0.0-alpha.8",
     "vue": "^3.2.38",

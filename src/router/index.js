@@ -74,7 +74,7 @@ router.beforeEach((to, from, next) => {
     if (requiresAuth && !currentUser) {
       next('/auth/login');
     } else if (requiresAuth && !currentUser.emailVerified) {
-      next('/auth/emailVerification');
+      next('/auth/emailVerification?email=' + currentUser.email);
     } else {
       next();
     }

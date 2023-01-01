@@ -159,7 +159,7 @@ export default {
 
       this.map = new maplibregl.Map({
         container: 'place',
-        style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+        style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json', // style URL
         center: [0, 0],
         zoom: 1,
         attributionControl: false,
